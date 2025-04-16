@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% block title %}Police Dashboard{% endblock %}
+{% block content %}
+
+<style>
+    :root {
+        --police-blue: #00467F;
+        --police-red: #C41E3A;
+        --highlight: #FFD700;
+    }
+
+    .police-dashboard {
+        background: #f8f9fa;
+        min-height: 100vh;
+    }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        border-left: 4px solid var(--police-blue);
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .emergency-btn {
+        background: var(--police-red);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .emergency-btn:hover {
+        background: #A3161F;
+        transform: scale(1.05);
+    }
+
+    .module-btn {
+        background: var(--police-blue);
+        color: white !important;
+        padding: 0.8rem 1.5rem;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .quick-stats {
+        background: linear-gradient(135deg, #00467F 0%, #002144 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+    }
+
+    .badge-police {
+        background: var(--highlight);
+        color: #002144;
+    }
+</style>
+
+<div class="police-dashboard">
+    <div class="container-fluid p-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-dark fw-bold">
+                <i class="fas fa-shield-alt me-2"></i>
+               Ghana Police Command Dashboard
+            </h2>
+            <button class="emergency-btn">
+                <i class="fas fa-bell me-2"></i>
+                Emergency Alert
+            </button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <div class="quick-stats">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">24</h4>
+                            <small>Active Officers</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">15</h4>
+                            <small>Pending Signals</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">8</h4>
+                            <small>New Messages</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">3</h4>
+                            <small>Active Cases</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Modules -->
+        <div class="row g-4">
+            <!-- Personnel Management -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-users-cog fa-2x text-primary"></i>
+                        <h4 class="ms-2 mb-0">Police stations</h4>
+                    </div>
+                    <p class="text-muted">List of all Police Stations in Ghana</p>
+                    <a href="{% url 'ghpolice_list' %}" class="module-btn">
+                        <i class="fas fa-list"></i>
+                        All Stations
+                    </a>
+                </div>
+            </div>
+
+            <!-- Signal Management -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-traffic-light fa-2x text-danger"></i>
+                        <h4 class="ms-2 mb-0">Signal Control</h4>
+                    </div>
+                    <p class="text-muted">Monitor and manage traffic signals and emergency alerts</p>
+                    <a href="police_signal.html" class="module-btn">
+                        <i class="fas fa-broadcast-tower"></i>
+                        Signal Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Communication -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-comments fa-2x text-success"></i>
+                        <h4 class="ms-2 mb-0"> Police Signals</h4>
+                    </div>
+                    <p class="text-muted">Access department communications and public alerts</p>
+                    <a href="{% url 'signal_create' %}" class="module-btn">
+                        <i class="fas fa-inbox"></i>
+                        Message Center
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="dashboard-card p-4">
+                    <h4 class="mb-3">
+                        <i class="fas fa-clock-rotate-left me-2"></i>
+                        Recent Activities
+                    </h4>
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between">
+                            <div>
+                                <span class="badge badge-police me-2">New</span>
+                                Officer check-in: John Doe
+                            </div>
+                            <small>2 mins ago</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            <div>
+                                <span class="badge badge-police me-2">Alert</span>
+                                Signal updated at Main Street
+                            </div>
+                            <small>15 mins ago</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            <div>
+                                <span class="badge badge-police me-2">Message</span>
+                                New broadcast message received
+                            </div>
+                            <small>1 hour ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

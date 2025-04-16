@@ -1,0 +1,15 @@
+{% if bills %}
+    <ul class="list-group">
+        {% for bill in bills %}
+            <li class="list-group-item">
+                <strong>Bill ID:</strong> {{ bill.id }} <br>
+                <strong>Name:</strong> {{ bill.recipient_name }} <br>
+                <strong>Ghana Card:</strong> {{ bill.ghana_card }} <br>
+                <strong>Contact:</strong> {{ bill.contact_number }} <br>
+                <strong>Total Due:</strong> GHS {{ bill.total_due }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="text-danger">No records found.</p>
+{% endif %}

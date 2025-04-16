@@ -1,0 +1,299 @@
+{% extends 'base.html' %}
+{% block title %}Revenue Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Revenue Analytics Dashboard</h1>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row">
+        <!-- Total Revenue Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                Total Revenue</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">GHS {{ total_revenue|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-coins fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Amount Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-danger shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Pending Amount</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">GHS {{ pending_amount|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Target Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                Revenue Target</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">GHS {{ revenue_target|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-bullseye fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Payment Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                Average Payment</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">GHS {{ average_payment|floatformat:2 }}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-chart-line fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <!-- Payment Methods Chart -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Payment Methods Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="paymentMethodsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Trends Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Payment Trends</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="paymentTrendsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Target Chart -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Revenue Target Progress</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-bar">
+                        <canvas id="revenueTargetChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Currency formatter
+    const cediFormatter = new Intl.NumberFormat('en-GH', {
+        style: 'currency',
+        currency: 'GHS',
+        minimumFractionDigits: 2
+    });
+
+    // Color scheme
+    const colors = {
+        primary: '#4e73df',
+        success: '#1cc88a',
+        danger: '#e74a3b',
+        warning: '#f6c23e',
+        info: '#36b9cc',
+        gray: '#858796'
+    };
+
+    // Payment Methods Chart (Doughnut)
+    const paymentMethodsCtx = document.getElementById('paymentMethodsChart');
+    new Chart(paymentMethodsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: JSON.parse('{{ payment_methods|safe }}'),
+            datasets: [{
+                data: JSON.parse('{{ payment_counts|safe }}'),
+                backgroundColor: [colors.primary, colors.success, colors.warning, colors.info],
+                hoverBorderColor: "#fff"
+            }]
+        },
+        options: {
+            plugins: {
+                datalabels: {
+                    formatter: (value, ctx) => {
+                        const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        return ((value / total) * 100).toFixed(1) + '%';
+                    },
+                    color: '#fff',
+                    font: { weight: 'bold' }
+                },
+                legend: {
+                    position: 'bottom',
+                    labels: { padding: 20 }
+                }
+            },
+            maintainAspectRatio: false
+        }
+    });
+
+    // Payment Trends Chart (Line)
+    const paymentTrendsCtx = document.getElementById('paymentTrendsChart');
+    new Chart(paymentTrendsCtx, {
+        type: 'line',
+        data: {
+            labels: JSON.parse('{{ payment_months|safe }}'),
+            datasets: [{
+                label: "Total Payments",
+                data: JSON.parse('{{ payment_totals|safe }}'),
+                borderColor: colors.primary,
+                backgroundColor: colors.primary + '20',
+                borderWidth: 2,
+                pointRadius: 3,
+                tension: 0.4
+            }]
+        },
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => cediFormatter.format(ctx.raw)
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        callback: (value) => cediFormatter.format(value)
+                    },
+                    grid: { color: '#f8f9fc' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            maintainAspectRatio: false
+        }
+    });
+
+    // Revenue Target Chart (Bar)
+    const revenueTargetCtx = document.getElementById('revenueTargetChart');
+    const revenueData = JSON.parse('{{ revenue_data|safe }}');
+    new Chart(revenueTargetCtx, {
+        type: 'bar',
+        data: {
+            labels: revenueData.map(d => d.year),
+            datasets: [
+                {
+                    label: "Target",
+                    data: revenueData.map(d => d.target),
+                    backgroundColor: colors.gray + '80',
+                    borderColor: colors.gray,
+                    borderWidth: 1
+                },
+                {
+                    label: "Collected",
+                    data: revenueData.map(d => d.collected),
+                    backgroundColor: colors.success + '80',
+                    borderColor: colors.success,
+                    borderWidth: 1
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => cediFormatter.format(ctx.raw)
+                    }
+                },
+                datalabels: {
+                    anchor: 'end',
+                    align: 'end',
+                    formatter: (value, ctx) => {
+                        if (ctx.datasetIndex === 1) {
+                            const percentage = revenueData[ctx.dataIndex].percentage_achieved.toFixed(1);
+                            return percentage + '%';
+                        }
+                        return '';
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: {
+                        callback: (value) => cediFormatter.format(value)
+                    },
+                    grid: { color: '#f8f9fc' }
+                },
+                x: {
+                    grid: { display: false }
+                }
+            },
+            maintainAspectRatio: false
+        }
+    });
+});
+</script>
+
+<style>
+.card {
+    border-radius: 0.35rem;
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-3px);
+}
+.chart-area, .chart-pie, .chart-bar {
+    position: relative;
+    height: 300px;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Account List - Greater Accra{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Account List for Greater Accra</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Serial Number</th>
+                <th>First Name</th>
+                <th>Surname</th>
+                <th>Category</th>
+                <th>Contact</th>
+                <th>Date Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account in accounts %}
+            <tr>
+                <td>{{ account.serial_number }}</td>
+                <td>{{ account.first_name }}</td>
+                <td>{{ account.surname }}</td>
+                <td>{{ account.category }}</td>
+                <td>{{ account.contact_1 }}</td>
+                <td>{{ account.date_created }}</td>
+                <td>
+                    <a href="{% url 'account_detail' account.pk %}" class="btn btn-info">View</a>
+                    <a href="{% url 'account_update' account.pk %}" class="btn btn-warning">Edit</a>
+                    <a href="{% url 'account_delete' account.pk %}" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No accounts found for this region.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a class="btn btn-lg btn-secondary mt-4" href="{% url 'create_account' %}" role="button">Create New Account &raquo;</a>
+</div>
+{% endblock %}

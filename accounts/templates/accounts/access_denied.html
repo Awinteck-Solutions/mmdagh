@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Residential Institution Lists - Greater Accra{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Residential Account List for Greater Accra</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Serial Number</th>
+                <th>First Name</th>
+                <th>Surname</th>
+                <th>Category</th>
+                <th>Contact</th>
+                <th>Date Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for residential in residentials %}
+            <tr>
+                <td>{{ residential.serial_number }}</td>
+                <td>{{ residential.first_name }}</td>
+                <td>{{ residential.surname }}</td>
+                <td>{{ residential.category }}</td>
+                <td>{{ residential.contact_1 }}</td>
+                <td>{{ residential.date_created }}</td>
+                <td>
+                    <a href="{% url 'account_detail' residential.pk %}" class="btn btn-info">View</a>
+                    <a href="{% url 'account_update' residential.pk %}" class="btn btn-warning">Edit</a>
+                    <a href="{% url 'account_delete' residential.pk %}" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7">No accounts found for this region.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a class="btn btn-lg btn-secondary mt-4" href="{% url 'create_residential' %}" role="button">Create New Account &raquo;</a>
+</div>
+{% endblock %}

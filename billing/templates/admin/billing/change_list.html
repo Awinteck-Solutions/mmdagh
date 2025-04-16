@@ -1,0 +1,42 @@
+{% extends "admin/change_list.html" %}
+{% load static %} 
+
+{% block content %}
+  <div class="admin-insights">
+    <h2>Admin Insights</h2>
+
+    <!-- Revenue Overview -->
+    <div class="insight">
+      <h3>Revenue Overview</h3>
+      <p><strong>Total Revenue:</strong> GHS {{ total_revenue }}</p>
+    </div>
+
+    <!-- Average Payment Amount -->
+    <div class="insight">
+      <h3>Average Payment Amount</h3>
+      <p><strong>Average Payment:</strong> GHS {{ avg_payment }}</p>
+    </div>
+
+    <!-- Popular Payment Method -->
+    <div class="insight">
+      <h3>Popular Payment Method</h3>
+      <p><strong>Most Popular:</strong> {{ popular_method }}</p>
+    </div>
+
+    <!-- Payment Trends Over Time -->
+    <div class="insight">
+      <h3>Payment Trends Over Time</h3>
+      <ul>
+        {% for trend in payment_trends %}
+          <li>{{ trend.month|date:"F Y" }}: GHS {{ trend.total }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Render default content -->
+  {{ block.super }}
+ <link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}">
+{% endblock %}
+
+

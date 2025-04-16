@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip History</title>
+</head>
+<body>
+    <h1>Trip History</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>S/no</th> 
+                <th>Start Address</th>
+                <th>End Address</th>
+                <th>Distance (km)</th>
+                <th>Travel Time (minutes)</th>
+                <th>Mode</th>
+                <th>Created At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trip in trips %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ trip.start_address }}</td>
+                <td>{{ trip.end_address }}</td>
+                <td>{{ trip.distance }}</td>
+                <td>{{ trip.travel_time }}</td>
+                <td>{{ trip.mode }}</td>
+                <td>{{ trip.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{% url 'trip_history' %}">Back to Calculator</a>
+
+</body>
+</html>
+{% endblock %}

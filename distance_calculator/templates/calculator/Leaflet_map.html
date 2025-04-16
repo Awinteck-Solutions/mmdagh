@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Leaflet Map{% endblock %}
+
+{% block content %}
+<h1 style="text-align: center;">Leaflet Map Search</h1>
+<div class="search-container">
+    <input type="text" id="search-box" placeholder="Enter a location or coordinates (lat, lon)">
+    <button onclick="searchLocation()">Search</button>
+</div>
+<div id="map"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+    #map {
+        height: 500px;
+        width: 100%;
+    }
+    .search-container {
+        margin: 10px;
+        text-align: center;
+    }
+    .search-container input {
+        width: 60%;
+        padding: 8px;
+        margin-right: 5px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .search-container button {
+        padding: 8px 15px;
+        border: none;
+        background-color: #007bff;
+        color: #fff;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    // Initialize the map
+    const map = L.map('map').setView([0, 0], 2);
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add a marker
+    let marker = L.marker([0, 0]).addTo(map);
+
+    function searchLocation() {
+        const input = document.getElementById('search-box').value;
+        const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${input}`;
+
+        // Fetch geocoding data
+        fetch(geocodeUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    const location = data[0];
+                    const lat = parseFloat(location.lat);
+                    const lon = parseFloat(location.lon);
+
+                    // Update map and marker
+                    map.setView([lat, lon], 12);
+                    marker.setLatLng([lat, lon]).bindPopup(location.display_name).openPopup();
+                } else {
+                    alert('Location not found');
+                }
+            })
+            .catch(err => console.error('Geocoding error:', err));
+    }
+</script>
+{% endblock %}

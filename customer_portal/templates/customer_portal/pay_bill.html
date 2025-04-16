@@ -1,0 +1,7 @@
+<h1>Pay Bill #{{ bill.id }}</h1>
+<p><strong>Amount Due:</strong> GHS {{ bill.total_due }}</p>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Pay Now</button>
+</form>

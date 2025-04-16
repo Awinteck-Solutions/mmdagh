@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Health Capture Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Health Institutions Details: {{ health.serial_number }}</h1>
+    
+    <!-- Health Institution Details Table -->
+    <div>
+
+        <h2 class="mb-4">GENERAL DATA</h2>
+        <div align="left">
+        <p><strong>Serial Number:</strong> {{ health.serial_number }}</p>
+        <p><strong>Category:</strong> {{ health.category }}</p>
+        <p><strong>Hospital Name:</strong> {{ health.hospital_name }}</p>
+        <p><strong>HSP REG.No:</strong> {{ health.hospital_reg_no }}</p>
+        <p><strong>Nature Ownership:</strong> {{ health.nature_ownership }}</p>
+        <p><strong>Hospital Admin:</strong> {{ health.hospital_admin }}</p>
+        <p><strong>Hospital Admin GH Card:</strong> {{ health.hospital_admin_ghana_card }}</p>
+        <p><strong>Admin Contact:</strong> {{ health.hospital_admin_contact }}</p>
+        <p><strong>Area Zone:</strong> {{ health.area_zone }}</p>
+        <p><strong>Street Name:</strong> {{ health.street_name }}</p>
+        <p><strong>Ghana Post GPS:</strong> <a href="https://www.ghanapostgps.com/map/?q={{ health.gps_address }}" target="_blank" rel="noopener noreferrer">{{ health.gps_address }}</a></p>
+        <p><strong>Google Coordinates:</strong> <a href="https://www.google.com/maps?q={{ health.latitude }},{{ health.longitude }}" target="_blank" rel="noopener noreferrer">{{ health.latitude }}, {{ health.longitude }}</a></p>
+        <p><strong>Hospital Location:</strong> {{ health.location }}</p>
+        <p><strong>Emergency contact:</strong> {{ health.emergency_name }},{{ health.emergency_contact }}</p>
+
+        <h2 class="mb-4">BUILDING INFORMATION</h2>
+        <div align="left">
+        <p><strong>Building Type:</strong> {{ health.building_type }}</p>
+        <p><strong>No.of Floors :</strong> {{ health.number_of_floors  }}</p>
+        <p><strong>Number of Beds:</strong> {{ health.number_of_beds }}</p>
+        <p><strong>Average Daily Admission:</strong> {{ health.average_daily_admin }}</p>
+        <p><strong>Toilet Facility :</strong> {{ health.toilet_facility }}</p>
+        <p><strong>Parking Spaces:</strong> {{ health.parking_spaces }}</p>
+        <p><strong>Fenced :</strong> {{ health.fenced  }}</p>
+        <p><strong>Fencing Type:</strong> {{ health.fencing_type}}</p>
+        <p><strong>Building Condition:</strong> {{ health.building_condition }}</p>
+        <p><strong>Security Features:</strong> {{ health.security_features }}</p>
+        <p><strong>Construction Material:</strong> {{ health.construction_material }}</p>
+        <p><strong>Type of Roof:</strong> {{ health.type_of_roof }}</p>
+        <p><strong>proximity_to_public_infrastructure:</strong> {{ health.proximity_to_public_infrastructure }}</p>
+ 
+        <h2 class="mb-4">FACILITY RECORD</h2>
+        <div align="left">
+        <p><strong> Water Supply:</strong> {{ health.water_supply }}</p>
+        <p><strong>electricity_connection :</strong> {{ health.electricity_connection }}</p>
+        <p><strong>has_backup_generator:</strong> {{ health.has_backup_generator}}</p>
+        <p><strong>sewage_system:</strong> {{ health.sewage_system }}</p>
+        <p><strong>waste_disposal_method:</strong> {{ health.waste_disposal_method }}</p>
+        <p><strong>internet_connectivity:</strong> {{ health.internet_connectivity}}</p>
+        <p><strong>Ambulance service Avialablity:</strong> {{ health.ambulance}}</p>
+        <p><strong>road_network:</strong> {{ health.road_network }}</p>
+        <p><strong> road_condition:</strong> {{ health.road_condition }}</p>
+
+
+        <h2 class="mb-4">RISK & CRIMINAL ACTIVITIES AROUND THE AREA</h2>
+        <div align="left">
+        <p><strong> flood_risk_area:</strong> {{ health.flood_risk_area }}</p>
+        <p><strong>criminal_activities:</strong> {{ health.internet_network_connectivity}}</p>
+
+
+        <h2 class="mb-4">DATES</h2>
+        <div align="left">
+        <p><strong>Date Created:</strong> {{ health.date_created }}</p>
+        <p><strong>Date Updated:</strong> {{ health.date_updated }}</p>
+
+
+        <!-- Add more fields as needed -->
+    </div>
+
+    <!-- Action Links -->
+    <div class="mt-4">
+        <a href="{% url 'health_list' %}" class="btn btn-secondary">Back to List</a>
+        <a href="{% url 'health_update' health.pk %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'health_delete' health.pk %}" class="btn btn-danger">Delete</a>
+    </div>
+</div>
+
+        <tr>
+            <th>Profile Picture:</th>
+            <td>
+                {% if health.profile_picture %}
+                    <img src="{{ health.profile_picture.url }}" alt="Profile Picture" style="width:150px; height:150px;">
+                {% else %}
+                    No Picture Uploaded
+                {% endif %}
+            </td>
+        </tr>
+
+{% endblock %}
+
+
+
+
+    # Security
+
+
+
+
+
+    # Security
+    criminal_activities = models.JSONField(default=list)  # Replace multiple fields with a single JSONField
+    network_connectivity = models.CharField(max_length=50, choices=NETWORK_CHOICES)
+        # Road Network Section
+    road_network = models.BooleanField(default=False)  # If true, road_condition should be specified
+    road_condition = models.CharField(

@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% block title %}Payment Analytics{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-calculator text-primary me-2"></i>
+            Payment Analytics
+        </h1>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row mb-4">
+        <!-- Average Payment Card -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-start-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <span class="text-muted">Average Payment</span>
+                            <h2 class="mt-2 mb-0">
+                                GHS {{ average_payment|default:0|floatformat:2 }}
+                            </h2>
+                        </div>
+                        <i class="fas fa-balance-scale fa-2x text-primary ms-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Payments Card -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-start-info h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <span class="text-muted">Total Payments</span>
+                            <h2 class="mt-2 mb-0">{{ total_payments|default:0 }}</h2>
+                        </div>
+                        <i class="fas fa-list-ol fa-2x text-info ms-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Total Revenue Card -->
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-start-success h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <span class="text-muted">Total Revenue</span>
+                            <h2 class="mt-2 mb-0">
+                                GHS {{ total_revenue|default:0|floatformat:2 }}
+                            </h2>
+                        </div>
+                        <i class="fas fa-coins fa-2x text-success ms-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Distribution Chart -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Payment Distribution</h5>
+        </div>
+        <div class="card-body">
+            {% if average_payment %}
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="paymentDistributionChart"></canvas>
+            </div>
+            {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-chart-pie fa-3x mb-3"></i>
+                <p>No payment data available for visualization</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if average_payment %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('paymentDistributionChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Average Payment', 'Minimum Payment', 'Maximum Payment'],
+            datasets: [{
+                label: 'Amount (GHS)',
+                data: [
+                    {{ average_payment|floatformat:2 }},
+                    {{ min_payment|floatformat:2 }},
+                    {{ max_payment|floatformat:2 }}
+                ],
+                backgroundColor: [
+                    'rgba(78, 115, 223, 0.5)',
+                    'rgba(231, 74, 59, 0.5)',
+                    'rgba(28, 200, 138, 0.5)'
+                ],
+                borderColor: [
+                    '#4e73df',
+                    '#e74a3b',
+                    '#1cc88a'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => 
+                            `GHS ${context.raw.toFixed(2)}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (value) => `GHS ${value.toLocaleString()}`
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+
+<style>
+.chart-container {
+    position: relative;
+    min-height: 400px;
+}
+.border-start-primary { border-left: 4px solid #4e73df !important; }
+.border-start-info { border-left: 4px solid #36b9cc !important; }
+.border-start-success { border-left: 4px solid #1cc88a !important; }
+</style>
+
+{% endblock %}

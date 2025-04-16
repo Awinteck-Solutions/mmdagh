@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% block title %}Payment Method Analysis{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-credit-card text-primary me-2"></i>
+            Payment Method Distribution
+        </h1>
+        <button onclick="window.print()" class="btn btn-outline-primary">
+            <i class="fas fa-print me-2"></i>Print Report
+        </button>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6 col-xl-4 mb-3">
+            <div class="card shadow-sm border-start-primary h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <span class="text-muted">Total Revenue</span>
+                            <h2 class="mt-2 mb-0">GHS {{ total_revenue|floatformat:2 }}</h2>
+                        </div>
+                        <i class="fas fa-wallet fa-2x text-primary ms-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-xl-4 mb-3">
+            <div class="card shadow-sm border-start-info h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <span class="text-muted">Payment Methods</span>
+                            <h2 class="mt-2 mb-0">{{ methods|length }}</h2>
+                        </div>
+                        <i class="fas fa-list-alt fa-2x text-info ms-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visualization Section -->
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Payment Method Breakdown</h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="paymentMethodChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Detailed Breakdown</h5>
+                    <span class="badge bg-primary">{{ methods|length }} Methods</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th class="sortable">Method</th>
+                                    <th class="sortable text-end">Total (GHS)</th>
+                                    <th class="text-end">% of Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for method in methods %}
+                                <tr>
+                                    <td>
+                                        <i class="fas fa-circle me-2" style="color: {{ method.color }}"></i>
+                                        {{ method.get_method_display }}
+                                    </td>
+                                    <td class="text-end">{{ method.total|floatformat:2 }}</td>
+                                    <td class="text-end">
+                                        {% widthratio method.total total_revenue 100 as percentage %}
+                                        {{ percentage|floatformat:1 }}%
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center py-5 text-muted">
+                                        <i class="fas fa-folder-open fa-2x mb-3"></i>
+                                        <p class="mb-0">No payment data available</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('paymentMethodChart').getContext('2d');
+    const methodData = {
+        labels: [{% for m in methods %}"{{ m.get_method_display }}",{% endfor %}],
+        totals: [{% for m in methods %}{{ m.total }},{% endfor %}],
+        colors: [{% for m in methods %}"{{ m.color }}",{% endfor %}]
+    };
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: methodData.labels,
+            datasets: [{
+                data: methodData.totals,
+                backgroundColor: methodData.colors,
+                borderColor: '#fff',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'right',
+                    labels: {
+                        boxWidth: 15,
+                        padding: 20
+                    }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => 
+                            ` GHS ${context.raw.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                    }
+                }
+            }
+        }
+    });
+
+    // Sorting functionality
+    document.querySelectorAll('.sortable').forEach(header => {
+        header.style.cursor = 'pointer';
+        header.addEventListener('click', () => {
+            const column = header.cellIndex;
+            const tbody = header.closest('table').querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aVal = a.cells[column].textContent;
+                const bVal = b.cells[column].textContent;
+                
+                return column === 0 ? 
+                    aVal.localeCompare(bVal) : 
+                    parseFloat(aVal) - parseFloat(bVal);
+            });
+
+            if(header.classList.contains('sorted-asc')) {
+                rows.reverse();
+                header.classList.replace('sorted-asc', 'sorted-desc');
+            } else {
+                header.classList.add('sorted-asc');
+                document.querySelectorAll('.sorted-desc').forEach(h => h.classList.remove('sorted-desc'));
+            }
+
+            tbody.append(...rows);
+        });
+    });
+});
+</script>
+
+<style>
+.chart-container {
+    position: relative;
+    min-height: 300px;
+}
+.sortable:hover {
+    background-color: rgba(78, 115, 223, 0.1);
+}
+.sorted-asc::after {
+    content: " ↑";
+    color: #4e73df;
+}
+.sorted-desc::after {
+    content: " ↓";
+    color: #4e73df;
+}
+</style>
+
+{% endblock %}

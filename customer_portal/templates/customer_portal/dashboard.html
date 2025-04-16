@@ -1,0 +1,46 @@
+<!-- customer_portal/dashboard.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+</head>
+<body>
+    <h1>Welcome to Your Dashboard</h1>
+
+    <!-- Form to enter Ghana Card number -->
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Fetch Bills</button>
+    </form>
+
+    <!-- Display bills if they exist -->
+    {% if bills %}
+        <h2>Your Bills</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Bill ID</th>
+                    <th>Amount Due</th>
+                    <th>Payment Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for bill in bills %}
+                    <tr>
+                        <td>{{ bill.id }}</td>
+                        <td>GHS {{ bill.total_due }}</td>
+                        <td>{{ bill.payment_status }}</td>
+                        <td><a href="{% url 'pay_bill' bill.id %}">Pay Now</a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No bills found. Please enter a valid Ghana Card number.</p>
+    {% endif %}
+</body>
+</html>

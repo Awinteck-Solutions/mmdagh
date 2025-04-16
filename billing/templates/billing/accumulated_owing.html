@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load crispy_forms_tags %}
+
+{% block title %}Outstanding Payments Report 2024{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-exclamation-triangle text-danger me-2"></i>
+            Outstanding Payments
+        </h1>
+        <div>
+            <button class="btn btn-outline-primary" onclick="window.print()">
+                <i class="fas fa-print me-2"></i>Print
+            </button>
+            <a href="{% url 'export-outstanding' %}" class="btn btn-primary">
+                <i class="fas fa-file-export me-2"></i>Export
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-danger h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <span class="text-muted">Total Outstanding</span>
+                            <h2 class="mb-0">GHS {{ total_due|intcomma }}</h2>
+                        </div>
+                        <i class="fas fa-money-bill-wave fa-2x text-danger ms-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-warning h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <span class="text-muted">Total Accumulated</span>
+                            <h2 class="mb-0">GHS {{ total_owing|intcomma }}</h2>
+                        </div>
+                        <i class="fas fa-chart-line fa-2x text-warning ms-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm border-success h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <span class="text-muted">Total Collected</span>
+                            <h2 class="mb-0">GHS {{ total_paid|intcomma }}</h2>
+                        </div>
+                        <i class="fas fa-coins fa-2x text-success ms-3"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Detailed Breakdown</h5>
+            <div class="small text-muted">
+                Showing {{ report_data|length }} records
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="sortable">Year</th>
+                            <th class="sortable text-end">Accumulated</th>
+                            <th class="sortable text-end">Paid</th>
+                            <th class="sortable text-end">Due</th>
+                            <th class="text-end">Progress</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for owing in report_data %}
+                        <tr>
+                            <td>{{ owing.year }}</td>
+                            <td class="text-end">GHS {{ owing.accumulated_amount|intcomma }}</td>
+                            <td class="text-end text-success">GHS {{ owing.paid_amount|intcomma }}</td>
+                            <td class="text-end text-danger">GHS {{ owing.amount_due|intcomma }}</td>
+                            <td class="text-end">
+                                <div class="progress" style="height: 20px;">
+                                    {% widthratio owing.paid_amount owing.accumulated_amount 100 as paid_pct %}
+                                    <div class="progress-bar bg-success" role="progressbar" 
+                                         style="width: {{ paid_pct }}%">
+                                        {{ paid_pct }}%
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="{{ owing.action }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-file-invoice me-2"></i>Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-check-circle fa-2x mb-3 text-success"></i>
+                                <p class="mb-0">All payments are up to date</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <th>Total</th>
+                            <th class="text-end">GHS {{ total_owing|intcomma }}</th>
+                            <th class="text-end">GHS {{ total_paid|intcomma }}</th>
+                            <th class="text-end">GHS {{ total_due|intcomma }}</th>
+                            <th colspan="2"></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visualization Section -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="mb-3">Payment Status Distribution</h5>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="paymentStatusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Payment Status Chart
+    const ctx = document.getElementById('paymentStatusChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Paid', 'Outstanding'],
+            datasets: [{
+                data: [{{ total_paid }}, {{ total_due }}],
+                backgroundColor: ['#28a745', '#dc3545']
+            }]
+        },
+        options: {
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => 
+                            ` GHS ${context.raw.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                    }
+                }
+            }
+        }
+    });
+
+    // Sorting functionality
+    document.querySelectorAll('.sortable').forEach(header => {
+        header.addEventListener('click', () => {
+            const column = header.cellIndex;
+            const tbody = header.closest('table').querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            rows.sort((a, b) => {
+                const aVal = parseFloat(a.cells[column].textContent.replace(/[^0-9.]/g, ''));
+                const bVal = parseFloat(b.cells[column].textContent.replace(/[^0-9.]/g, ''));
+                return aVal - bVal;
+            });
+
+            if(header.classList.contains('sorted-asc')) {
+                rows.reverse();
+                header.classList.replace('sorted-asc', 'sorted-desc');
+            } else {
+                header.classList.add('sorted-asc');
+                document.querySelectorAll('.sorted-desc').forEach(h => h.classList.remove('sorted-desc'));
+            }
+
+            tbody.append(...rows);
+        });
+    });
+});
+</script>
+
+<style>
+.chart-container { position: relative; min-height: 300px; }
+.sortable { cursor: pointer; transition: background-color 0.2s; }
+.sortable:hover { background-color: rgba(0,0,0,0.05); }
+.sorted-asc::after { content: " ↑"; color: #4e73df; }
+.sorted-desc::after { content: " ↓"; color: #4e73df; }
+.progress-bar { min-width: 2em; }
+</style>
+{% endblock %}

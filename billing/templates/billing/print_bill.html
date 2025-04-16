@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Rate Bill</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .receipt-container {
+            width: 800px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .header {
+            text-align: center;
+            font-weight: bold;
+            padding-bottom: 0px;
+            border-bottom: 5px solid #007bff;
+        }
+        .header img {
+            height: 60px;
+        }
+        .left-logo {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            height: 60px;
+        }
+        .right-logo {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            height: 60px;
+        }
+        .watermark {
+            position: absolute;
+            opacity: 0.1;
+            z-index: 0;
+            width: 100%;
+            top: 50%;
+            left: 50%;
+
+            transform: translate(-50%, -50%); /* Adjust centering */
+            text-align: center;
+        }
+        .watermark img {
+            width: 300px; /* Make it larger */
+            max-width: 100%;
+        }
+        .info p {
+            margin: 8px 0;
+            font-size: 14px;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .table th {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .footer {
+            margin-top: 20px;
+            font-size: 12px;
+            background: #343a40;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .footer ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="receipt-container">
+        {% if mmda.local_govt_logo %}
+            <img src="{{ mmda.local_govt_logo.url }}" class="left-logo" alt="Local Govt Logo">
+        {% endif %}
+        {% if mmda.logo_1 %}
+            <img src="{{ mmda.logo_1.url }}" class="right-logo" alt="MMDA Logo">
+        {% endif %}
+        <div class="header">
+            <h2>{{ bill.name_mmda }}</h2>
+            <p>{{ mmda.postal_address }} | TEL: {{ mmda.contact_1 }} / {{ mmda.contact_2 }} | {{ mmda.email }}</p>
+            <p><strong>PROPERTY RATE BILL (FINAL DEMAND NOTICE) {{ bill.accounting_year }}</strong></p>
+        </div>
+        {% if mmda.coat_of_arms %}
+            <div class="watermark">
+                <img src="{{ mmda.coat_of_arms.url }}" alt="Coat of Arms">
+            </div>
+        {% endif %}
+        <div class="info">
+            <p><strong>Owner Name:</strong> {{ bill.recipient_name }}</p>
+            <p><strong>Customer ID:</strong> {{ bill.account }}</p>
+            <p><strong>Billing ID:</strong> {{ bill.id }}</p>
+            <p><strong>GPS:</strong> {{ bill.gps_address }}</p>
+            <p><strong>Ghana Card:</strong> {{ bill.ghana_card }}</p>
+            <p><strong>Tel:</strong> {{ bill.contact_number }}</p>
+            <p><strong>Number of Rooms:</strong> {{ bill.rooms }}</p>
+        </div>
+        <table class="table">
+            <tr>
+                <th>Description</th>
+                <th>Amount (GHC)</th>
+            </tr>
+            <tr>
+                <td>Arrears B/f {{ bill.previous_year }}</td>
+                <td>{{ bill.brought_forward }}</td>
+            </tr>
+            <tr>
+                <td>Property Rate {{ bill.accounting_year }}</td>
+                <td>{{ bill.amount }}</td>
+            </tr>
+            <tr>
+                <td>Paid</td>
+                <td>{{ bill.total_paid }}</td>
+            </tr>
+            <tr>
+                <th>Total Amount Payable</th>
+                <th>{{ bill.amount_due }}</th>
+            </tr>
+        </table>
+
+            <p><strong>Date:</strong> {{ bill.created_at }}</p>
+            <p><strong>Municipal Finance Officer:</strong> {{ mmda.abbreviation }}.... electronically signed....</p>
+            <div class="footer">
+            <hr>
+            <p><strong>Important Notes:</strong></p>
+            <ul>
+                <li>This bill is for the Year {{ bill.accounting_year }}</li>
+                <li>The Bill may include unpaid arrears from previous years.</li>
+                <li>Do not make any payment without this bill.</li>
+                <li>Legal action shall be taken against defaulters after the due date.</li>
+                <li>Defaulters shall pay a 50% penalty of the amount owed.</li>
+                <li>Obtain an Official General Counterfoil Receipt (GCR) for every payment.</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

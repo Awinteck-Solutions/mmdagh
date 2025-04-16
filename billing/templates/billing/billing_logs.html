@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}Business/SME's Account{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <h1>Billing Audit Logs</h1>
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Billing ID</th>
+                <th>Field Name</th>
+                <th>Old Value</th>
+                <th>New Value</th>
+                <th>Changed At</th>
+                <th>Changed By</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ log.billing.id }}</td>
+                <td>{{ log.field_name }}</td>
+                <td>{{ log.old_value }}</td>
+                <td>{{ log.new_value }}</td>
+                <td>{{ log.changed_at|date:"Y-m-d H:i:s" }}</td>
+                <td>
+                    {% if log.changed_by %}
+                        {{ log.changed_by.username }}
+                    {% else %}
+                        System
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <nav>
+        <ul class="pagination">
+            {% if logs.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ logs.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+            <li class="page-item disabled">
+                <span class="page-link">Page {{ logs.number }} of {{ logs.paginator.num_pages }}</span>
+            </li>
+            {% if logs.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ logs.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

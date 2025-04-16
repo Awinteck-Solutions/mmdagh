@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="alert alert-success text-center" role="alert">
+      <h2 class="display-4">Success!</h2>
+      <p class="lead">Your education record has been successfully created.</p>
+    </div>
+    
+    <div class="text-center mt-4">
+      <a href="{% url 'enter_ghana_card' %}" class="btn btn-primary btn-lg m-2">Create Another Record</a>
+      <a href="{% url 'education_list' %}" class="btn btn-secondary btn-lg m-2">View Education Records</a>
+    </div>
+  </div>
+{% endblock %}

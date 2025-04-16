@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Payment Analysis by Category{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Payment Analysis by Category</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Total Payment (GHS)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in analysis %}
+            <tr>
+                <td>{{ item.billing__category }}</td>
+                <td>GHS {{ item.total }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="2" class="text-center">No data available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

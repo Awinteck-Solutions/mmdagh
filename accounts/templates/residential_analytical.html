@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Residential Analytics{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-chart-bar me-2"></i>Residential Analytics
+        </h1>
+        <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="analyticsDropdown" data-bs-toggle="dropdown">
+                <i class="fas fa-download me-2"></i>Export
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" id="exportPDF">PDF Report</a></li>
+                <li><a class="dropdown-item" href="#" id="exportCSV">CSV Data</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-start-primary shadow h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-home fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted">Total Residential</div>
+                            <div class="h4">{{ total_residential }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add more metric cards as needed -->
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row">
+        <!-- Registration Trends -->
+        <div class="col-md-8 mb-4">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold">Registration Trends</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="registrationTrendChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Property Distribution -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h6 class="m-0 font-weight-bold">Property Types</h6>
+                </div>
+                <div class="card-body">
+                    <canvas id="propertyTypeChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Analytics Sections -->
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Registration Trend Chart
+    const trendCtx = document.getElementById('registrationTrendChart').getContext('2d');
+    new Chart(trendCtx, {
+        type: 'line',
+        data: {
+            labels: {{ trend_labels|safe }},
+            datasets: [{
+                label: 'Registrations',
+                data: {{ trend_data|safe }},
+                borderColor: '#4e73df',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // Property Type Chart
+    const typeCtx = document.getElementById('propertyTypeChart').getContext('2d');
+    new Chart(typeCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ property_labels|safe }},
+            datasets: [{
+                data: {{ property_data|safe }},
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e']
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-5 text-center">Ghana Police Service Stations</h2>
+
+    <!-- Filter Form -->
+    <div class="mb-4 d-flex justify-content-center">
+        <div class="input-group w-75">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" id="stationFilter" class="form-control" placeholder="Search by station name or area" onkeyup="filterStations()">
+        </div>
+    </div>
+
+    <!-- Table for displaying stations -->
+    <div class="table-responsive shadow-sm rounded-3">
+        <table class="table table-striped table-bordered table-hover table-sm">
+            <thead class="table-dark text-white">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">S/No</th>
+                    <th scope="col">Political Region</th>
+                    <th scope="col">Police Region</th>
+                    <th scope="col">Division</th>
+                    <th scope="col">District</th>
+                    <th scope="col">Station Name</th>
+                    <th scope="col">Area</th>
+                    <th scope="col">Contact</th>
+                </tr>
+            </thead>
+            <tbody id="stationTable">
+                {% for station in stations %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ station.serial_number }}</td>
+                    <td>{{ station.region }}</td>
+                    <td>{{ station.police_region }}</td>
+                    <td>{{ station.division }}</td>
+                    <td>{{ station.district }}</td>
+                    <td><a href="{% url 'ghpolice_detail' station.pk %}" class="text-decoration-none text-primary">{{ station.station.name }}</a></td>
+                    <td>{{ station.area_name }}</td>
+                    <td>{{ station.contact }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-between mt-4">
+        <div>
+            {% if stations.has_previous %}
+                <a href="?page=1" class="btn btn-outline-primary btn-sm">First</a>
+                <a href="?page={{ stations.previous_page_number }}" class="btn btn-outline-primary btn-sm">Previous</a>
+            {% endif %}
+        </div>
+        <div>
+            {% if stations.has_next %}
+                <a href="?page={{ stations.next_page_number }}" class="btn btn-outline-primary btn-sm">Next</a>
+                <a href="?page={{ stations.paginator.num_pages }}" class="btn btn-outline-primary btn-sm">Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Function to filter stations based on input
+    function filterStations() {
+        const input = document.getElementById('stationFilter');
+        const filter = input.value.toLowerCase();
+        const rows = document.getElementById('stationTable').getElementsByTagName('tr');
+        
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            if (cells.length > 0) {
+                const stationName = cells[5].textContent || cells[5].innerText;
+                const areaName = cells[6].textContent || cells[6].innerText;
+                if (stationName.toLowerCase().indexOf(filter) > -1 || areaName.toLowerCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}

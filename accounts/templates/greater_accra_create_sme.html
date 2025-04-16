@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Business/SME's Account - Greater Accra{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Create Business/SME's  Account for Greater Accra</h2>
+    {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+    {% endif %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit" class="btn btn-primary">Save</button>
+    </form>
+    <a class="btn btn-lg btn-secondary mt-4" href="{% url 'sme_list' %}" role="button">Back to Educational List &raquo;</a>
+</div>
+{% endblock %}

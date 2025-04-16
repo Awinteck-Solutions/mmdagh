@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load crispy_forms_tags %}
+{% block title %}Property Rate Revenue 2024 | Unpaid Bills{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-5 mb-2">2024 Property Rate Revenue</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Unpaid Bills</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="btn btn-outline-secondary">
+                <i class="bi bi-printer"></i> Print
+            </button>
+        </div>
+    </div>
+
+    <!-- Total Revenue Card -->
+    <div class="card shadow-sm border-danger mb-5">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title text-danger mb-1">
+                        <i class="bi bi-exclamation-octagon me-2"></i>Total Outstanding Balance
+                    </h5>
+                    <p class="text-muted mb-0">As of {% now "F j, Y" %}</p>
+                </div>
+                <div class="display-4 fw-bold text-danger">
+                    GHS {{ total_amount_left|floatformat:2 }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">#</th>
+                            <th>Recipient</th>
+                            <th>Ghana Card</th>
+                            <th>Category</th>
+                            <th class="text-end">Amount Due</th>
+                            <th class="text-end">Balance</th>
+                            <th>Bill Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in unpaid_bills %}
+                        <tr>
+                            <td class="ps-4 fw-bold">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="ms-2">
+                                        <div class="fw-bold">{{ bill.recipient_name }}</div>
+                                        <small class="text-muted">{{ bill.bill_date|date:"M d, Y" }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><code>{{ bill.ghana_card }}</code></td>
+                            <td>
+                                <span class="badge bg-info">
+                                    {{ bill.category_display }}
+                                </span>
+                            </td>
+                            <td class="text-end">GHS {{ bill.amount_due|floatformat:2 }}</td>
+                            <td class="text-end fw-bold text-danger">GHS {{ bill.amount_left|floatformat:2 }}</td>
+                            <td>{{ bill.bill_date|date:"Y-m-d" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7">
+                                <div class="text-center py-5">
+                                    <i class="bi bi-check-circle fs-1 text-success"></i>
+                                    <h4 class="mt-3">All Bills Paid</h4>
+                                    <p class="text-muted">No outstanding payments for 2024</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/scripts.js' %}"></script>
+{% endblock %}{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load crispy_forms_tags %}
+{% block title %} Property Rate Revenue 2024 {% endblock %}
+
+{% block content %}
+<!-- templates/billing/revenue_account.html -->
+
+<div class="container mt-5">
+    <h1 class="mb-4">Unpaid Bills</h1>
+
+    <!-- Total Revenue -->
+    <div class="alert alert-success">
+        <h4>Total Unpaid amount 2024: GHS {{ total_amount_left }}</h4>
+    </div>
+
+    <!-- Payment Records -->
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+        <tr>
+            <th>#</th>
+            <th>Recipient Name</th>
+            <th>Ghana Card</th>
+            <th>Category</th>
+            <th>Amount Due</th>
+            <th>Amount Left</th>
+            <th>Bill Date</th>
+        </tr>
+        </thead>
+        <tbody>
+            {% for bill in unpaid_bills %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ bill.recipient_name }}</td>
+                <td>{{ bill.ghana_card }}</td>
+                <td>{{ bill.category_display }}</td>
+                <td>GHS {{ bill.amount_due }}</td>
+                <td>GHS {{ bill.amount_left }}</td>
+                <td>{{ bill.bill_date|date:"Y-m-d" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}
+<script src="{% static 'js/scripts.js' %}"></script>

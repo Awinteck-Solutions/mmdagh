@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Search Results</h1>
+    <form method="get" action="{% url 'search' %}" class="search-form">
+        <input type="text" name="query" placeholder="Search accounts or education..." aria-label="Search" required>
+        <button type="submit">Search</button>
+    </form>
+
+    <h3>Account Results</h3>
+    <table class="results-table">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Surname</th>
+                <th>Serial Number</th>
+                <th>Contact</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for account in account_results %}
+            <tr>
+                <td>{{ account.first_name }}</td>
+                <td>{{ account.surname }}</td>
+                <td>{{ account.serial_number }}</td>
+                <td>{{ account.contact_1 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="3">No accounts found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Education Results</h3>
+    <table class="results-table">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Surname</th>
+                <th>School Name</th>
+                <th>Serial Number</th>
+                <th>Contact</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for education in education_results %}
+            <tr>
+                <td>{{ education.first_name }}</td>
+                <td>{{ education.surname }}</td>
+                <td>{{ education.school_name }}</td>
+                <td>{{ education.serial_number }}</td>
+                <td>{{ education.contact_1 }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4">No education records found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<style>
+/* Container for the search results */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Search form styles */
+.search-form {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-form input[type="text"] {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+}
+
+.search-form button {
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-form button:hover {
+    background-color: #0056b3;
+}
+
+/* Table styles */
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.results-table th, .results-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.results-table th {
+    background-color: #007BFF;
+    color: white;
+}
+
+.results-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.results-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .search-form {
+        flex-direction: column;
+    }
+
+    .search-form input[type="text"] {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+}
+</style>
+{% endblock %}

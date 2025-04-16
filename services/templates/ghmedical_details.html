@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-5">{{ facility.facility_name }}</h1>
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-primary">{{ facility.get_type_facility_display }}</span>
+                <small class="text-muted">Serial: {{ facility.serial_number }}</small>
+            </div>
+        </div>
+        <a href="{% url 'ghmedical_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <!-- Quick Stats Row -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-info-circle me-2"></i>Basic Info</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Region:</strong> {{ facility.region.name }}</li>
+                        <li><strong>MMDA:</strong> {{ facility.mmda.name }}</li>
+                        <li><strong>Ownership:</strong> {{ facility.get_nature_ownership_display }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-telephone me-2"></i>Contact</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Primary:</strong> {{ facility.contact }}</li>
+                        {% if facility.additional_contact %}
+                        <li><strong>Secondary:</strong> {{ facility.additional_contact }}</li>
+                        {% endif %}
+                        {% if facility.email %}
+                        <li><strong>Email:</strong> {{ facility.email }}</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-geo-alt me-2"></i>Location</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>Area:</strong> {{ facility.area_name }}</li>
+                        <li><strong>Zone:</strong> {{ facility.area_zone }}</li>
+                        <li><strong>GPS:</strong> {{ facility.gps_location }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Images Column -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title mb-3"><i class="bi bi-images me-2"></i>Facility Images</h5>
+                    <div id="facilityCarousel" class="carousel slide">
+                        <div class="carousel-inner">
+                            {% if facility.facility_picture_1 %}
+                            <div class="carousel-item active">
+                                <img src="{{ facility.facility_picture_1.url }}" class="d-block w-100 rounded" alt="Facility image">
+                            </div>
+                            {% endif %}
+                            <!-- Repeat for other images -->
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#facilityCarousel">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#facilityCarousel">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                    {% if not facility.facility_picture_1 %}
+                    <div class="text-center py-4 bg-light rounded">
+                        <i class="bi bi-image fs-1 text-muted"></i>
+                        <p class="mt-2 mb-0">No images available</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Column -->
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <!-- Key Metrics -->
+                    <div class="row mb-4">
+                        <div class="col-md-4 text-center">
+                            <div class="bg-primary text-white p-3 rounded">
+                                <h4 class="mb-0">{{ facility.number_of_beds }}</h4>
+                                <small>Total Beds</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="bg-info text-white p-3 rounded">
+                                <h4 class="mb-0">{{ facility.average_daily_admission }}</h4>
+                                <small>Daily Admissions</small>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <div class="bg-{{ facility.ambulance|yesno:'success,secondary' }} text-white p-3 rounded">
+                                <h4 class="mb-0">
+                                    <i class="bi bi-ambulance"></i>
+                                </h4>
+                                <small>Ambulance {{ facility.ambulance|yesno:"Available,Not Available" }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Information -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="mb-3"><i class="bi bi-building me-2"></i>Facility Details</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Accessibility:</strong> {{ facility.get_Accessibility_of_facility_display }}</li>
+                                <li><strong>Building Condition:</strong> 
+                                    <span class="badge bg-{% if facility.nature_of_building == 'Good' %}success{% elif facility.nature_of_building == 'Moderate' %}warning{% else %}danger{% endif %}">
+                                        {{ facility.get_nature_of_building_display }}
+                                    </span>
+                                </li>
+                                <li><strong>Road Network:</strong> {{ facility.road_network }}</li>
+                            </ul>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="mb-3"><i class="bi bi-geo me-2"></i>Location Details</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Geo Coordinates:</strong> {{ facility.geo_coordinate }}</li>
+                                <li><strong>Landmark:</strong> {{ facility.landmark|default:"-" }}</li>
+                                <li><strong>Nearby Fire Station:</strong> {{ facility.station.name }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="mt-4">
+                        <h5><i class="bi bi-file-text me-2"></i>Description</h5>
+                        <p class="text-muted">{{ facility.description_of_facility }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Meta Section -->
+    <div class="mt-4 text-end">
+        <small class="text-muted">
+            Created by {{ facility.created_by|default:"System" }} on {{ facility.date_created|date:"M d, Y" }}
+            {% if facility.updated_by %}
+            <br>Last updated by {{ facility.updated_by }} on {{ facility.date_updated|date:"M d, Y" }}
+            {% endif %}
+        </small>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize carousel
+    const carousel = new bootstrap.Carousel('#facilityCarousel')
+});
+</script>
+{% endblock %}

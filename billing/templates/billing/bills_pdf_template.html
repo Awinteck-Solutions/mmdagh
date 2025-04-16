@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Unpaid Bills</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid black; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .header { text-align: center; font-size: 20px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">Unpaid Bills Report</div>
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Recipient Name</th>
+                <th>Ghana Card</th>
+                <th>GPS Address</th>
+                <th>Category</th>
+                <th>Location</th>
+                <th>Contact</th>
+                <th>Amount Due</th>
+                <th>Bill Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bill in bills %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ bill.recipient_name }}</td>
+                <td>{{ bill.ghana_card }}</td>
+                <td>{{ bill.gps_address }}</td>
+                <td>{{ bill.get_category_display }}</td>
+                <td>{{ bill.address }}</td>
+                <td>{{ bill.contact_number }}</td>
+                <td>GHS {{ bill.closing_balance }}</td>
+                <td>{{ bill.bill_date|date:"Y-m-d" }}</td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="9">No unpaid bills found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

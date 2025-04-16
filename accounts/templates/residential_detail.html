@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Residential Capture Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="h4 mb-0">
+                    <i class="fas fa-home me-2"></i>
+                    {{ residential.building_name }} Details
+                </h2>
+                <div class="badge bg-white text-primary fs-6">Serial: {{ residential.serial_number }}</div>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <!-- Header Section -->
+            <div class="row mb-4 border-bottom pb-3">
+                <div class="col-md-4 text-center">
+                    {% if residential.profile_picture %}
+                    <img src="{{ residential.profile_picture.url }}" 
+                         class="img-thumbnail mb-3" 
+                         alt="Building Image"
+                         style="max-height: 200px;">
+                    {% else %}
+                    <div class="bg-light p-4 text-muted">
+                        <i class="fas fa-building fa-3x"></i>
+                        <p class="mt-2 mb-0">No Image Available</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-8">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <h5 class="text-primary"><i class="fas fa-map-marker-alt me-2"></i>Location Details</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Region:</strong> {{ residential.region }}</li>
+                                <li><strong>MMDA:</strong> {{ residential.mmda }}</li>
+                                <li><strong>GPS Address:</strong> 
+                                    <a href="https://www.ghanapostgps.com/map/?q={{ residential.gps_address }}" 
+                                       target="_blank" class="text-decoration-none">
+                                        {{ residential.gps_address }}
+                                    </a>
+                                </li>
+                                <li><strong>Coordinates:</strong> 
+                                    <a href="https://www.google.com/maps?q={{ residential.latitude }},{{ residential.longitude }}" 
+                                       target="_blank" class="text-decoration-none">
+                                        {{ residential.latitude|floatformat:4 }}, {{ residential.longitude|floatformat:4 }}
+                                    </a>
+                                </li>
+                                <li><strong>Street:</strong> {{ residential.street_name }}</li>
+                                <li><strong>Zone:</strong> {{ residential.area_zone }}</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5 class="text-primary"><i class="fas fa-user-shield me-2"></i>Ownership</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Status:</strong> {{ residential.ownership_status }}</li>
+                                <li><strong>Nature of Ownership:</strong> {{ residential.nature_ownership }}</li>
+                                <li><strong>Type:</strong> {{ residential.property_classification }}</li>
+                                <li><strong>Principal Tenant:</strong> {{ residential.principal_tenant }}</li>
+                                <li><strong>Contact:</strong> {{ residential.principal_tenant_contact }}</li>
+                                <li><strong>Ghana Card:</strong> {{ residential.ghana_card}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                                <!-- Collapsible Sections -->
+                                <div class="accordion" id="detailsAccordion">
+                                    <!-- Building Information -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#buildingInfo">
+                                                <i class="fas fa-info-circle me-2"></i> Building Information
+                                            </button>
+                                        </h2>
+                                        <div id="buildingInfo" class="accordion-collapse collapse show" data-bs-parent="#detailsAccordion">
+                                            <div class="accordion-body">
+                                                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                                                    <!-- Building Details -->
+                                <div class="col">
+                                    <h6 class="text-muted mb-3"><i class="fas fa-vector-square me-2"></i>Structure</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-6">Type</dt>
+                                        <dd class="col-sm-6">{{ residential.building_type }}</dd>
+                                        <dt class="col-sm-6">Building Condition</dt>
+                                        <dd class="col-sm-6">{{ residential.building_condition}}</dd>
+                                        
+                                        <dt class="col-sm-6">Floors</dt>
+                                        <dd class="col-sm-6">{{ residential.number_of_floors }}</dd>
+                                        
+                                        <dt class="col-sm-6">Rooms</dt>
+                                        <dd class="col-sm-6">{{ residential.number_of_rooms }}</dd>
+                                        <dt class="col-sm-6">Building Description</dt>
+                                        <dd class="col-sm-6">{{ residential.building_description}}</dd>
+
+                                        <dt class="col-sm-6">No. of cccupants</dt>
+                                        <dd class="col-sm-6">{{ residential.number_of_occupants }}</dd>
+                                    </dl>
+                                </div>
+
+                                <!-- Facilities -->
+                                <div class="col">
+                                    <h6 class="text-muted mb-3"><i class="fas fa-restroom me-2"></i>Facilities</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-6">Toilet</dt>
+                                        <dd class="col-sm-6">{{ residential.toilet_facility }}</dd>
+                                        
+                                        <dt class="col-sm-6">Parking</dt>
+                                        <dd class="col-sm-6">{{ residential.parking_spaces|yesno:"Available,Not Available" }}</dd>
+                                        
+                                        <dt class="col-sm-6">Fenced?</dt>
+                                        <dd class="col-sm-6">{{ residential.fenced|default:"None" }}</dd>
+                                        <dt class="col-sm-6">Fencing</dt>
+                                        <dd class="col-sm-6">{{ residential.fencing_type|default:"None" }}</dd>
+                                        <dt class="col-sm-6">Land Size</dt>
+                                        <dd class="col-sm-6">{{ residential.land_size }}</dd>
+
+                                    </dl>
+                                </div>
+
+                                <!-- Safety & Security Features -->
+                                <div class="col">
+                                    <h6 class="text-muted mb-3"><i class="fas fa-shield-alt me-2"></i>Safety & Security</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-6">Fire Hydrant</dt>
+                                        <dd class="col-sm-6">{{ residential.fire_hydrant_availability|yesno:"Yes,No" }}</dd>
+                                        
+                                        <dt class="col-sm-6">Fire Extinguisher</dt>
+                                        <dd class="col-sm-6">{{ residential.fire_extinguishers_availability|yesno:"Yes,No" }}</dd>
+                                        
+                                        <dt class="col-sm-6">Security Features</dt>
+                                        <dd class="col-sm-6">{{ residential.security_features|join:", " }}</dd>
+                                        <dt class="col-sm-6">Criminal Activities</dt>
+                                        <dd class="col-sm-6">{{ residential.criminal_activities_1}},{{ residential.criminal_activities_2}},{{ residential.criminal_activities_3}}</dd>
+
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                                <!-- Collapsible Sections -->
+                                <div class="accordion" id="detailsAccordion">
+                                    <!-- Construction Information -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#buildingInfo">
+                                                <i class="fas fa-info-circle me-2"></i>Construction Data
+                                            </button>
+                                        </h2>
+                                        <div id="buildingInfo" class="accordion-collapse collapse show" data-bs-parent="#detailsAccordion">
+                                            <div class="accordion-body">
+                                                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                                                    <!-- Building Details -->
+                                <div class="col">
+                                    <h6 class="text-muted mb-3"><i class="fas fa-vector-square me-2"></i>Construction Material</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-6">Construction Materials</dt>
+                                        <dd class="col-sm-6">{{ residential.construction_material }}</dd>
+                                        <dt class="col-sm-6">Roofing type</dt>
+                                        <dd class="col-sm-6">{{ residential.type_of_roof}}</dd>
+                                        
+                                        <dt class="col-sm-6">Generator available</dt>
+                                        <dd class="col-sm-6">{{ residential.has_backup_generator }}</dd>
+                                        
+                                        <dt class="col-sm-6">Sewage System</dt>
+                                        <dd class="col-sm-6">{{residential.sewage_system}}</dd>
+                                    </dl>
+                                </div>
+
+                                <!-- Risk & Security -->
+                                <div class="col">
+                                    <h6 class="text-muted mb-3"><i class="fas fa-restroom me-2"></i>Water Facilities</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-6">Waste Disposal Method</dt>
+                                        <dd class="col-sm-6">{{ residential.waste_disposal_method}}</dd>
+                                        
+                                        <dt class="col-sm-6">Internet Connectivity</dt>
+                                        <dd class="col-sm-6">{{ residential.internet_connectivity}}</dd>
+                                        
+                                        <dt class="col-sm-6">Road Condition</dt>
+                                        <dd class="col-sm-6">{{ residential.road_condition }}</dd>
+                                        <dt class="col-sm-6">Floor Risk Area</dt>
+                                        <dd class="col-sm-6">{{ residential.flood_risk_area}}</dd>
+                                    </dl>
+                                </div>
+
+                                <!-- Safety Features -->
+                                <div class="col">
+                                    <h6 class="text-muted mb-3"><i class="fas fa-shield-alt me-2"></i>Power Facilities</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-6">Avialabilty of Water</dt>
+                                        <dd class="col-sm-6">{{ residential.water_supply  }}</dd>
+                                        
+                                        <dt class="col-sm-6">Ghana Water Supply</dt>
+                                        <dd class="col-sm-6">{{ residential.gwcpl_supply |yesno:"Yes,No" }}</dd>
+                                        
+                                        <dt class="col-sm-6">Electricty Availability</dt>
+                                        <dd class="col-sm-6">{{ residential.ecg_connection }}</dd>
+                                        <dt class="col-sm-6">Available ECG Pole No.</dt>
+                                        <dd class="col-sm-6">{{ residential.ecg_pole_no }}</dd>
+
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                                <!-- Collapsible Sections -->
+                                <div class="accordion" id="detailsAccordion">
+                                    <!-- Building Information -->
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#buildingInfo">
+                                                <i class="fas fa-info-circle me-2"></i> Environmental Details
+                                            </button>
+                                        </h2>
+                                        <div id="buildingInfo" class="accordion-collapse collapse show" data-bs-parent="#detailsAccordion">
+                                            <div class="accordion-body">
+                                                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                                                    <!-- Building Details -->
+                                <div class="col">
+                                    <h6 class="text-muted mb-3"><i class="fas fa-vector-square me-2"></i>Structure</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-6">Nearest Landmark</dt>
+                                        <dd class="col-sm-6">{{ residential.proximity_to_public_infrastructure }}</dd>
+                                        <dt class="col-sm-6">Name of Infrastructure</dt>
+                                        <dd class="col-sm-6">{{ residential.name_of_public_infr}}</dd>
+                                        
+                                        <dt class="col-sm-6">Floors</dt>
+                                        <dd class="col-sm-6">{{ residential.number_of_floors }}</dd>
+                                        
+                                        <dt class="col-sm-6">Rooms</dt>
+                                        <dd class="col-sm-6">{{ residential.number_of_rooms }}</dd>
+                                    </dl>
+                                </div>
+
+                                <!-- Risk & Security -->
+                                <div class="col">
+                                    <h6 class="text-muted mb-3"><i class="fas fa-restroom me-2"></i>Facilities</h6>
+                                    <dl class="row mb-0">
+                                        
+                                        <dt class="col-sm-6">Network Connectivity</dt>
+                                        <dd class="col-sm-6">{{ residential.road_network}}</dd>
+                                        
+                                        <dt class="col-sm-6">Road Condition</dt>
+                                        <dd class="col-sm-6">{{ residential.road_condition }}</dd>
+                                        <dt class="col-sm-6">Floor Risk Area</dt>
+                                        <dd class="col-sm-6">{{ residential.flood_risk_area}}</dd>
+                                    </dl>
+                                </div>
+
+                                <!-- Safety Features -->
+                                <div class="col">
+                                    <h6 class="text-muted mb-3"><i class="fas fa-shield-alt me-2"></i>Others</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-6">Neighbour/Emergency</dt>
+                                        <dd class="col-sm-6">{{ residential.neighbor_emergency_name }}</dd>
+                                        <dt class="col-sm-6">Neighbour contact</dt>
+                                        <dd class="col-sm-6">{{ residential.neighbor_emergency_contact }}</dd>
+
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Sections (Utilities, Environmental, etc.) -->
+                <!-- Add similar accordion items for other sections -->
+            </div>
+        </div>
+
+              <!-- Additional Sections (Utilities, Environmental, etc.) -->
+                <!-- Add similar accordion items for other sections -->
+            </div>
+        </div>
+
+        <!-- Card Footer with Actions -->
+        <div class="card-footer bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    Created: {{ residential.date_created|date:"M d, Y" }} | 
+                    Updated: {{ residential.date_updated|date:"M d, Y" }}
+                </small>
+                <div class="btn-group">
+                    <a href="{% url 'residential_list' %}" class="btn btn-sm btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back
+                    </a>
+                    <a href="{% url 'residential_update' residential.pk %}" class="btn btn-sm btn-warning">
+                        <i class="fas fa-edit me-2"></i>Edit
+                    </a>
+                    <a href="{% url 'residential_delete' residential.pk %}" class="btn btn-sm btn-danger">
+                        <i class="fas fa-trash me-2"></i>Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

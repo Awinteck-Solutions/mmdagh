@@ -1,0 +1,41 @@
+
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %} Business/SME's account{% endblock %}
+{% block content %}
+<!-- create_education.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Inst. Capture Form</title>
+</head>
+<body>
+    <h1>Create Educational Inst. Capture Record</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <button type="submit">Submit</button>
+    </form>
+
+    {% if form.errors %}
+    <div>
+        <h3>Form Errors</h3>
+        <ul>
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</body>
+</html>
+
+{% endblock %}
+
+
+

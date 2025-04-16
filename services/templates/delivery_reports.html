@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="report-header">
+    <h2>Delivery Reports for: {{ message.subject }}</h2>
+    <div class="stats">
+        <span>Total Recipients: {{ total_reports }}</span>
+        <span>Delivered: {{ delivered_count }}</span>
+        <span>Read: {{ read_count }}</span>
+    </div>
+</div>
+
+<table class="delivery-reports">
+    <thead>
+        <tr>
+            <th>Recipient Unit</th>
+            <th>Region</th>
+            <th>Received At</th>
+            <th>Read At</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for report in page_obj %}
+        <tr>
+            <td>{{ report.recipient_unit.name }}</td>
+            <td>{{ report.recipient_unit.region.name }}</td>
+            <td>{{ report.received_at|date:"M j, Y H:i"|default:"Pending" }}</td>
+            <td>{{ report.read_at|date:"M j, Y H:i"|default:"-" }}</td>
+            <td class="status-{% if report.read_at %}read{% elif report.received_at %}delivered{% else %}pending{% endif %}">
+                {% if report.read_at %}Read
+                {% elif report.received_at %}Delivered
+                {% else %}Pending
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5">No delivery reports available</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% include "includes/pagination.html" %}
+{% endblock %}

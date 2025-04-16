@@ -1,0 +1,20 @@
+<h2>Accumulated Owing</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Account</th>
+            <th>Year</th>
+            <th>Amount Owed</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for owing in accumulated_owings %}
+        <tr>
+            <td>{{ owing.account }}</td>
+            <td>{{ owing.year }}</td>
+            <td>{{ owing.amount }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<h3>Total Owing: {{ total_owing }}</h3>

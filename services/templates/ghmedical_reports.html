@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header with Date -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Medical Facility Analytics</h2>
+        <div class="text-muted">{{ current_date|date:"F j, Y" }}</div>
+    </div>
+
+    <!-- Total Count Card -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-dark text-white shadow-lg">
+                <div class="card-body py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i class="bi bi-fire me-2"></i>Total Medical Facility
+                        </h4>
+                        <span class="display-6">{{ total_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Cards with Percentages -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white p-3">
+                <h5><i class="bi bi-check-circle"></i> Operational ({{ good_condition_percentage }}%)</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="fs-2 mb-0">{{ good_condition_count }}</p>
+                    <small>of {{ total_count }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-dark p-3">
+                <h5><i class="bi bi-exclamation-triangle"></i> Needs Maintenance ({{ moderate_condition_percentage }}%)</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="fs-2 mb-0">{{ moderate_condition_count }}</p>
+                    <small>of {{ total_count }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white p-3">
+                <h5><i class="bi bi-x-circle"></i> Critical ({{ bad_condition_percentage }}%)</h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="fs-2 mb-0">{{ bad_condition_count }}</p>
+                    <small>of {{ total_count }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0">Condition Distribution</h5>
+                    <span class="badge bg-light text-dark">{{ ghmedicalfacilitys.count }} total</span>
+                </div>
+                <canvas id="conditionChart" aria-label="Medical Facility condition distribution chart" role="img" height="200"></canvas>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <h5 class="mb-3">Accessibility Analysis</h5>
+                <canvas id="accessibilityChart" aria-label="Medical Facility accessibility analysis chart" role="img" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3">
+                <h5 class="mb-3">Facility Type</h5>
+                <canvas id="facilitytypeChart" aria-label="Medical Facility Type analysis chart" role="img" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Filters and Export Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row">
+                <!-- Filters -->
+                <div class="col-md-8">
+                    <h5 class="card-title">Filter Facility</h5>
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="condition" class="form-label">Condition</label>
+                            <select name="condition" id="condition" class="form-select" aria-label="Select facility condition">
+                                <option value="">All Conditions</option>
+                                <option value="Good" {% if request.GET.condition == 'Good' %}selected{% endif %}>Good</option>
+                                <option value="Moderate" {% if request.GET.condition == 'Moderate' %}selected{% endif %}>Moderate</option>
+                                <option value="Bad" {% if request.GET.condition == 'Bad' %}selected{% endif %}>Bad</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="accessibility" class="form-label">Accessibility</label>
+                            <select name="accessibility" id="accessibility" class="form-select" aria-label="Select facility accessibility">
+                                <option value="">All Access Types</option>
+                                <option value="Easy" {% if request.GET.accessibility == 'Easy' %}selected{% endif %}>Easy</option>
+                                <option value="Difficult" {% if request.GET.accessibility == 'Difficult' %}selected{% endif %}>Difficult</option>
+                                <option value="Encouraged" {% if request.GET.accessibility == 'Encouraged' %}selected{% endif %}>Encouraged</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="facilitytype" class="form-label">Facility Type</label>
+                            <select name="facilitytype" id="facilitytype" class="form-select" aria-label="Select facility type">
+                                <option value="">All Facilities</option>
+                                <option value="Chip Compound" {% if request.GET.facilitytype == 'Chip Compound' %}selected{% endif %}>Chip Compound</option>
+                                <option value="Clinic" {% if request.GET.facilitytype == 'Clinic' %}selected{% endif %}>Clinic</option>
+                                <option value="Hospital" {% if request.GET.facilitytype == 'Hospital' %}selected{% endif %}>Hospital</option>
+                                <option value="Maternity Home" {% if request.GET.facilitytype == 'Marternity Home' %}selected{% endif %}>Maternity Home</option>
+                                <option value="Pharmarcyl" {% if request.GET.facilitytype == 'Pharmarcy' %}selected{% endif %}>Pharmarcy</option>
+                                <option value="other" {% if request.GET.facilitytype == 'Other' %}selected{% endif %}>other</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="region" class="form-label">Region</label>
+                            <select name="region" id="region" class="form-select" aria-label="Select region">
+                                <option value="">All Regions</option>
+                                {% for region in regions %}
+                                <option value="{{ region.id }}" {% if request.GET.region == region.id|stringformat:"s" %}selected{% endif %}>{{ region.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary" aria-label="Apply Filters">
+                                    <i class="bi bi-funnel"></i> Apply Filters
+                                </button>
+                                <a href="{% url 'ghmedical_reports' %}" class="btn btn-outline-secondary" aria-label="Reset Filters">
+                                    <i class="bi bi-arrow-counterclockwise"></i> Reset
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- Export Buttons -->
+                <div class="col-md-4">
+                    <h5 class="card-title">Export Data</h5>
+                    <div class="d-flex flex-column gap-2">
+                        <a href="{% url 'ghmedical_reports' %}?{{ request.GET.urlencode }}&export=csv" class="btn btn-success" aria-label="Export as CSV">
+                            <i class="bi bi-file-earmark-excel"></i> Export as CSV
+                        </a>
+                        <a href="{% url 'ghmedical_reports' %}?{{ request.GET.urlencode }}&export=pdf" class="btn btn-danger" aria-label="Export as PDF">
+                            <i class="bi bi-file-earmark-pdf"></i> Export as PDF
+                        </a>
+                        <button onclick="window.print()" class="btn btn-info" aria-label="Print Report">
+                            <i class="bi bi-printer"></i> Print Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>S/No.</th>
+                            <th>Facility Name</th>
+                            <th>Location</th>
+                            <th>Condition</th>
+                            <th>Accessibility</th>
+                            <th>Facility Type</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for facility in facilities %}
+                        <tr>
+                            <td>{{ facility.serial_number }}</td>
+                            <td>{{ facility.facility_name }}</td>
+                            <td>
+                                {{ facility.area_name }}<br>
+                                <small class="text-muted">{{ facility.region.name }}</small>
+                            </td>
+                            <td>
+                                <span class="badge 
+                                    {% if facility.nature_of_building  == 'Good' %}bg-success
+                                    {% elif facility.nature_of_building  == 'Moderate' %}bg-warning text-dark
+                                    {% else %}bg-danger
+                                    {% endif %}">
+                                    {{ facility.nature_of_building }}
+                                </span>
+                            </td>
+                            <td>{{ facility.Accessibility_of_facility }}</td>
+                            <td>{{ facility.type_facility }}</td>
+                            <td>{{ facility.date_updated|date:"M d, Y" }}</td>
+                            <td>
+                                <a href="{% url 'ghmedical_details' facility.pk %}" class="btn btn-sm btn-outline-primary" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="bi bi-exclamation-circle fs-4"></i><br>
+                                No Medical Facilities found matching your criteria
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if is_paginated %}
+            <nav class="mt-4" aria-label="Facility table pagination">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&{{ request.GET.urlencode|cut:'page=1' }}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode|cut:'page=1' }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    <li class="page-item active">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ paginator.num_pages }}</span>
+                    </li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode|cut:'page=1' }}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ paginator.num_pages }}&{{ request.GET.urlencode|cut:'page=1' }}">Last</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const conditionCtx = document.getElementById('conditionChart');
+    new Chart(conditionCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Good', 'Moderate', 'Bad'],
+            datasets: [{
+                data: [{{ good_condition_count }}, {{ moderate_condition_count }}, {{ bad_condition_count }}],
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const value = context.raw;
+                            const percentage = Math.round((value / total) * 100);
+                            return `${context.label}: ${value} (${percentage}%)`;
+                        }
+                    }
+                }
+            },
+            cutout: '70%'
+        }
+    });
+
+    const accessibilityCtx = document.getElementById('accessibilityChart');
+    new Chart(accessibilityCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Easy', 'Difficult', 'Encouraged'],
+            datasets: [{
+                label: 'Number of Facilities',
+                data: [{{ easy_access_count }}, {{ difficult_access_count }}, {{ encouraged_access_count }}],
+                backgroundColor: ['#007bff', '#6c757d', '#6610f2'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    const facilitytypeCtx = document.getElementById('facilitytypeChart');
+    new Chart(facilitytypeCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Chip Compound', 'Clinic','Hospital', 'Maternity Home','Pharmarcy','Other'],
+            datasets: [{
+                label: 'Number of Facilities',
+                data: [{{chip_compound_count }}, {{ clinic_count }}, {{ hospital_count }},{{ maternity_home_count }},{{ pharmacy_count }},{{ other_count }}],
+                backgroundColor: ['#007bff', '#6c757d', '#6610f2','#94716B','#93F9B9','#718355'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { stepSize: 1 }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+{% endblock %}

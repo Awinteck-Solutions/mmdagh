@@ -1,0 +1,95 @@
+firehydrant_list.html
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-5 text-center">Ghana National Fire Service Hydrants</h2>
+
+    <!-- Filter Form -->
+<div class="mb-4 d-flex justify-content-between">
+    <div class="input-group w-75">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="text" id="stationFilter" class="form-control" placeholder="Search..." onkeyup="filterStations()">
+    </div>
+    <a href="{% url 'firehydrant_reports' %}" class="btn btn-primary">View Reports</a>
+</div>
+
+<button onclick="window.print()" class="btn btn-info">
+    <i class="bi bi-printer"></i> Print Report
+</button>
+
+    <!-- Table for displaying stations -->
+    <div class="table-responsive shadow-sm rounded-3">
+        <table class="table table-striped table-bordered table-hover table-sm">
+            <thead class="table-dark text-white">
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Political Region</th>
+                    <th scope="col">MMDA</th>
+                    <th scope="col">Hydrant Name</th>
+                    <th scope="col">Prox. Fire station</th>
+                    <th scope="col">GPS Location</th>
+                    <th scope="col">Hydrant Location</th>
+                    <th scope="col">Area</th>
+                    <th scope="col">Contact</th>
+                </tr>
+            </thead>
+            <tbody id="stationTable">
+                {% for firehydrant in firehydrants %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ firehydrant.region }}</td>
+                    <td><a href="{% url 'firehydrant_details' firehydrant.pk %}" class="text-decoration-none text-primary">{{ firehydrant.mmda }}</a></td>
+                    <td><a href="{% url 'firehydrant_details' firehydrant.pk %}" class="text-decoration-none text-primary">{{ firehydrant.firehydrant_name}}</a></td>
+                    <td>{{ firehydrant.station}}</td>
+                    <td>{{ firehydrant.gps_location  }}</td>
+                    <td>{{ firehydrant.area_name }}</td>
+                    <td>{{ firehydrant.area_name }}</td>
+                    <td>{{ firehydrant.contact }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-between mt-4">
+        <div>
+            {% if firehydrants.has_previous %}
+                <a href="?page=1" class="btn btn-outline-primary btn-sm">First</a>
+                <a href="?page={{ firehydrants.previous_page_number }}" class="btn btn-outline-primary btn-sm">Previous</a>
+            {% endif %}
+        </div>
+        <div>
+            {% if firehydrants.has_next %}
+                <a href="?page={{ firehydrants.next_page_number }}" class="btn btn-outline-primary btn-sm">Next</a>
+                <a href="?page={{ firehydrants.paginator.num_pages }}" class="btn btn-outline-primary btn-sm">Last</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Function to filter stations based on input
+    function filterStations() {
+        const input = document.getElementById('stationFilter');
+        const filter = input.value.toLowerCase();
+        const rows = document.getElementById('stationTable').getElementsByTagName('tr');
+        
+        for (let i = 0; i < rows.length; i++) {
+            const cells = rows[i].getElementsByTagName('td');
+            if (cells.length > 0) {
+                const stationName = cells[5].textContent || cells[5].innerText;
+                const areaName = cells[6].textContent || cells[6].innerText;
+                if (stationName.toLowerCase().indexOf(filter) > -1 || areaName.toLowerCase().indexOf(filter) > -1) {
+                    rows[i].style.display = "";
+                } else {
+                    rows[i].style.display = "none";
+                }
+            }
+        }
+    }
+</script>
+{% endblock %}

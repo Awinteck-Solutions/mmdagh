@@ -1,0 +1,129 @@
+
+
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %} MMDA Educational List  {% endblock %}
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4 text-center">Educational Institutions List</h1>
+
+    <!-- Create New Health Account Button -->
+    <div class="d-flex justify-content-between mb-4">
+        <a href="{% url 'create_education' %}" class="btn btn-success">Create New Educational Record</a>
+    </div>
+
+    <!-- Accounts Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Serial</th>
+                    <th>Inst. Name</th>
+                    <th>Inst. contact</th>
+                    <th>Ownership</th>
+                    <th>Admin Name</th>
+                    <th>Admin Contact</th>
+                    <th>Facility Location</th>
+                    <th>GPS Address</th>
+                    <th>Coordinates</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for education in educations %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ education.serial_number }}</td>
+                    <td>{{ education.school_name }}</td>
+                    <td>{{ education.school_contact }}</td>
+                    <td>{{ education.nature_ownership }}</td>
+                    <td>{{ education.school_admin }}</td>
+                    <td>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#contactModal{{ forloop.counter }}">
+                            {{ education.school_admin_contact }}
+                        </a>
+                    </td>
+                    <td>{{ education.location }}</td>
+                    <td>
+                        <a href="https://www.ghanapostgps.com/map/?q={{ education.gps_address }}" target="_blank" rel="noopener noreferrer">{{ education.gps_address }}</a>
+                    </td>
+                    <td>
+                        <a href="https://www.google.com/maps?q={{ education.latitude }},{{ education.longitude }}" target="_blank" rel="noopener noreferrer">
+                            {{ education.latitude }}, {{ education.longitude }}
+                        </a>
+                    </td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modal{{ education.pk }}">View Details</button>
+                    </td>
+                </tr>
+
+                <!-- Contact Modal -->
+                <div class="modal fade" id="contactModal{{ forloop.counter }}" tabindex="-1" aria-labelledby="contactModalLabel{{ forloop.counter }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="contactModalLabel{{ forloop.counter }}">Contact Options</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Select how you would like to contact <strong>{{ education.school_admin_contact }}</strong>:</p>
+                                <div class="d-flex justify-content-between">
+                                    <!-- WhatsApp Link -->
+                                    <a href="https://wa.me/{{ education.school_admin_contact|slice:':-1' }}" 
+                                       class="btn btn-success" target="_blank">
+                                       WhatsApp
+                                    </a>
+                                    <!-- SMS Link -->
+                                    <a href="education:{{ education.school_admin_contact }}" 
+                                       class="btn btn-primary">
+                                       Education
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details Modal -->
+                <div class="modal fade" id="modal{{ education.pk }}" tabindex="-1" aria-labelledby="modalLabel{{ education.pk }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabel{{ education.pk }}">Detailed Health Information: {{ education.education_name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Serial Number:</strong> {{ education.serial_number }}</p>
+                                <p><strong>Category:</strong> {{ education.category }}</p>
+                                <p><strong>Educational Inst. Name:</strong> {{ education.school_name }}</p>
+                                <p><strong>Insti. contact:</strong> {{ education.school_contact }}</p>
+                                <p><strong>Insti. Admin:</strong> {{ education.school_admin }}</p>
+                                <p><strong>Admin Contact:</strong> <a href="#" data-bs-toggle="modal" data-bs-target="#contactModal{{ forloop.counter }}">{{ education.school_admin_contact }}</a></p>
+                                <p><strong>Ghana Post GPS:</strong> <a href="https://www.ghanapostgps.com/map/?q={{ education.gps_address }}" target="_blank" rel="noopener noreferrer">{{ education.gps_address }}</a></p>
+                                <p><strong>Google Coordinates:</strong> <a href="https://www.google.com/maps?q={{ education.latitude }},{{ education.longitude }}" target="_blank" rel="noopener noreferrer">{{ education.latitude }}, {{ education.longitude }}</a></p>
+                                <p><strong>Location:</strong> {{ education.location }}</p>
+                                <p><strong>Area Zone:</strong> {{ education.area_zone }}</p>
+                                <p><strong>Emergency Contact:</strong> {{ education.emergency_name }}, {{ education.emergency_contact }}</p>
+                                <p><strong>Building Type:</strong> {{ education.building_type }}</p>
+                                <p><strong>Proximity to Public Infrastructure:</strong> {{ education.proximity_to_public_infrastructure }}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a href="{% url 'education_detail' education.id %}" class="btn btn-primary">More Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center">No sme captures found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

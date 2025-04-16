@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ station.station.name }} - {{ station.area_name }}</h2>
+<p><strong>Region:</strong> {{ station.region.name }}</p>
+<p><strong>Division:</strong> {{ station.division.name }}</p>
+<p><strong>District:</strong> {{ station.district.name }}</p>
+<p><strong>GPS Location:</strong> {{ station.gps_location }}</p>
+<p><strong>Geo Coordinates:</strong> {{ station.geo_coordinate }}</p>
+<p><strong>Contact:</strong> {{ station.contact }}</p>
+<p><strong>Email:</strong> {{ station.email }}</p>
+<p><strong>Description:</strong> {{ station.description }}</p>
+<p><strong>Crime Rate:</strong> {{ station.crime_rate }}</p>
+<p><strong>Nature of Crime:</strong> {{ station.nature_of_crime }}</p>
+
+{% if station.image1 %}
+    <img src="{{ station.image1.url }}" alt="Station Image 1" width="200">
+{% endif %}
+{% if station.image2 %}
+    <img src="{{ station.image2.url }}" alt="Station Image 2" width="200">
+{% endif %}
+{% if station.image3 %}
+    <img src="{{ station.image3.url }}" alt="Station Image 3" width="200">
+{% endif %}
+{% if station.image4 %}
+    <img src="{{ station.image4.url }}" alt="Station Image 4" width="200">
+{% endif %}
+
+<a href="{% url 'gnfs_list' %}">Back to List</a>
+{% endblock %}

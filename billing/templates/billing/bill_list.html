@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Property Rate Bills Management{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-5 mb-2">Property Rate Bills</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Bills</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'export_bills_pdf' %}?region={{ selected_region }}&mmda={{ selected_mmda }}" 
+               class="btn btn-danger d-flex align-items-center">
+                <i class="bi bi-file-pdf me-2"></i> PDF
+            </a>
+            <a href="{% url 'export_bills_excel' %}?region={{ selected_region }}&mmda={{ selected_mmda }}" 
+               class="btn btn-success d-flex align-items-center">
+                <i class="bi bi-file-excel me-2"></i> Excel
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    {% if user.is_superuser %}
+    <div class="card shadow-sm mb-5">
+        <div class="card-body">
+            <h5 class="card-title mb-4"><i class="bi bi-funnel me-2"></i>Filter Bills</h5>
+            <form method="GET">
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <label for="region" class="form-label">Region</label>
+                        <select name="region" id="region" class="form-select">
+                            <option value="">All Regions</option>
+                            {% for region in regions %}
+                            <option value="{{ region.id }}" {% if region.id|stringformat:"s" == selected_region %}selected{% endif %}>
+                                {{ region.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="mmda" class="form-label">MMDA</label>
+                        <select name="mmda" id="mmda" class="form-select">
+                            <option value="">All MMDAs</option>
+                            {% for mmda in mmdas %}
+                            <option value="{{ mmda.id }}" {% if mmda.id|stringformat:"s" == selected_mmda %}selected{% endif %}>
+                                {{ mmda.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-filter me-2"></i>Apply Filters
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Bills Table -->
+    {% if bills %}
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Recipient</th>
+                            <th scope="col">Ghana Card</th>
+                            <th scope="col">Location</th>
+                            <th scope="col">Annual Bill</th>
+                            <th scope="col">Paid</th>
+                            <th scope="col">Balance</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in bills %}
+                        <tr class="align-middle" onclick="window.location='{% url 'bill_detail' bill.id %}'" style="cursor: pointer;">
+                            <td class="fw-bold text-primary">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="ms-2">
+                                        <div class="fw-bold">{{ bill.recipient_name }}</div>
+                                        <small class="text-muted">{{ bill.name_mmda }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><code>{{ bill.ghana_card }}</code></td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 150px;">
+                                    {{ bill.gps_address }}
+                                </div>
+                            </td>
+                            <td class="fw-bold">GHS {{ bill.amount }}</td>
+                            <td class="text-success">GHS {{ bill.total_paid }}</td>
+                            <td class="text-danger">GHS {{ bill.closing_balance }}</td>
+                            <td>
+                                <span class="badge bg-{% if bill.payment_status == 'Paid' %}success{% else %}warning{% endif %}">
+                                    {{ bill.payment_status }}
+                                </span>
+                            </td>
+                            <td>{{ bill.bill_date|date:"M d, Y" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-5">
+        <div class="py-5">
+            <img src="{% static 'images/empty-state.svg' %}" alt="No bills" class="img-fluid mb-4" style="max-width: 300px;">
+            <h4 class="mb-3">No Bills Found</h4>
+            <p class="text-muted">Try adjusting your filters or check back later.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add any interactive functionality here
+    const rows = document.querySelectorAll('tr[onclick]');
+    rows.forEach(row => {
+        row.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                window.location = row.getAttribute('data-href');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

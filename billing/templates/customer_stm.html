@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Customer Statement{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --primary-blue: #4e73df;
+        --success-green: #28a745;
+        --text-dark: #2d3b4a;
+        --text-light: #6c757d;
+    }
+
+    .statement-container {
+        background: #ffffff;
+        border-radius: 0.75rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+        margin: 2rem auto;
+    }
+
+    .table-header {
+        background: var(--primary-blue);
+        color: white;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .print-btn {
+        background: var(--primary-blue);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .print-btn:hover {
+        background: #2e59d9;
+        transform: translateY(-1px);
+    }
+
+    .transaction-table {
+        border-collapse: separate;
+        border-spacing: 0 0.75rem;
+    }
+
+    .transaction-table tbody tr {
+        background: #f8f9fc;
+        transition: all 0.2s ease;
+        border-radius: 0.5rem;
+    }
+
+    .transaction-table tbody tr:hover {
+        transform: translateX(4px);
+        box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, 0.08);
+    }
+
+    .amount-cell {
+        font-weight: 600;
+        color: var(--primary-blue);
+    }
+
+    .payment-badge {
+        padding: 0.35rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.85rem;
+    }
+
+    @media print {
+        .statement-container {
+            box-shadow: none;
+            padding: 0;
+        }
+        .print-btn { display: none; }
+        .transaction-table tbody tr {
+            background: transparent !important;
+        }
+    }
+</style>
+
+<div class="container-lg statement-container">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="h4 mb-1 text-dark">
+                <i class="fas fa-file-invoice-dollar me-2"></i>
+                Customer Statement
+            </h2>
+            <p class="text-muted mb-0">Detailed transaction history and payment records</p>
+        </div>
+        <button onclick="window.print()" class="btn print-btn text-white rounded-pill">
+            <i class="fas fa-print me-2"></i>Generate PDF
+        </button>
+    </div>
+
+    <!-- Main Table -->
+    <div class="table-responsive">
+        <table class="table transaction-table">
+            <thead class="table-header">
+                <tr>
+                    <th class="ps-4">#</th>
+                    <th>Transaction ID</th>
+                    <th>Customer</th>
+                    <th>Debit Account</th>
+                    <th>Credit Account</th>
+                    <th>Fiscal Year</th>
+                    <th>Date</th>
+                    <th class="text-end">Amount (GHS)</th>
+                    <th>Payment Mode</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for statement in statements %}
+                <tr class="align-middle">
+                    <td class="ps-4">{{ forloop.counter }}</td>
+                    <td class="fw-bold text-primary">#{{ statement.payment_id|slice:"0:8"|upper }}</td>
+                    <td>{{ statement.customer_name }}</td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="small text-muted">Account</span>
+                            <span>{{ statement.dr_account.id }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-column">
+                            <span class="small text-muted">Account</span>
+                            <span>{{ statement.cr_account.id }}</span>
+                        </div>
+                    </td>
+                    <td>{{ statement.year_bill }}</td>
+                    <td>{{ statement.date_generated|date:"M d, Y" }}</td>
+                    <td class="text-end amount-cell">{{ statement.amount|floatformat:2 }}</td>
+                    <td>
+                        <span class="payment-badge bg-success bg-opacity-10 text-success">
+                            {{ statement.method|upper }}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center py-5 bg-light">
+                        <div class="d-flex flex-column align-items-center text-muted">
+                            <i class="fas fa-ban fa-2x mb-3"></i>
+                            No transaction records available
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="mt-4 pt-3 border-top">
+        <div class="d-flex justify-content-between text-muted small">
+            <div>
+                <i class="fas fa-database me-1"></i>
+                Showing {{ statements|length }} records
+            </div>
+            <div>
+                <i class="fas fa-clock me-1"></i>
+                Generated {% now "M j, Y H:i" %} 
+                <span class="mx-2">|</span>
+                <i class="fas fa-server me-1"></i>
+                {{ request.site.name|default:"Billing System" }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

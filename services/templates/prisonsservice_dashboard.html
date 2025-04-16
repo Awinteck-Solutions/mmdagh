@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% block title %}Prisons Service Dashboard{% endblock %}
+{% block content %}
+
+<style>
+    :root {
+        --prison-brown: #8B7355;  /* Official light brown color */
+        --dark-brown: #5C4A36;
+        --emergency-maroon: #800000;
+    }
+
+    .prisons-dashboard {
+        background: #f5f2ee;
+        min-height: 100vh;
+    }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+        border-left: 4px solid var(--prison-brown);
+    }
+
+    .emergency-btn {
+        background: var(--emergency-maroon);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .module-btn {
+        background: var(--dark-brown);
+        color: white !important;
+        padding: 0.8rem 1.5rem;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .quick-stats {
+        background: linear-gradient(135deg, #8B7355 0%, #6B5D4D 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+    }
+
+    .security-badge {
+        background: var(--emergency-maroon);
+        color: white;
+    }
+</style>
+
+<div class="prisons-dashboard">
+    <div class="container-fluid p-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-dark fw-bold">
+                <i class="fas fa-shield-alt me-2"></i>
+                Ghana Prisons Service Command
+            </h2>
+            <button class="emergency-btn">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Security Alert
+            </button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <div class="quick-stats">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">{{ total_inmates }}</h4>
+                            <small>Total Inmates</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">{{ facility_capacity }}%</h4>
+                            <small>Facility Capacity</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">{{ staff_count }}</h4>
+                            <small>Security Staff</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">{{ recent_incidents }}</h4>
+                            <small>Recent Incidents</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Modules -->
+        <div class="row g-4">
+            <!-- Inmate Management -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-user-lock fa-2x text-brown"></i>
+                        <h4 class="ms-2 mb-0">Inmate Management</h4>
+                    </div>
+                    <p class="text-muted">Access inmate records and custody details</p>
+                    <a href="inmates.html" class="module-btn">
+                        <i class="fas fa-list-ul"></i>
+                        Inmate Registry
+                    </a>
+                </div>
+            </div>
+
+            <!-- Facility Status -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-building fa-2x text-primary"></i>
+                        <h4 class="ms-2 mb-0">Facility Status</h4>
+                    </div>
+                    <p class="text-muted">Monitor prison facilities nationwide</p>
+                    <a href="facilities.html" class="module-btn">
+                        <i class="fas fa-map-marked"></i>
+                        Facility Map
+                    </a>
+                </div>
+            </div>
+
+            <!-- Rehabilitation -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-hands-helping fa-2x text-success"></i>
+                        <h4 class="ms-2 mb-0">Rehabilitation</h4>
+                    </div>
+                    <p class="text-muted">Manage rehabilitation programs</p>
+                    <a href="rehabilitation.html" class="module-btn">
+                        <i class="fas fa-heartbeat"></i>
+                        Programs Portal
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="dashboard-card p-4">
+                    <h4 class="mb-3">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        Recent Activities
+                    </h4>
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between">
+                            <div>
+                                <span class="badge security-badge me-2">NEW</span>
+                                15 new admissions processed
+                            </div>
+                            <small>6 hours ago</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            <div>
+                                <span class="badge security-badge me-2">TRANSFER</span>
+                                Inmate transfer to Kumasi completed
+                            </div>
+                            <small>1 day ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <h4 class="mb-3">
+                        <i class="fas fa-link me-2"></i>
+                        Quick Access
+                    </h4>
+                    <div class="list-group">
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-contract me-2"></i>
+                            Security Protocols
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            Visitor Schedule
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action">
+                            <i class="fas fa-file-medical me-2"></i>
+                            Health Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

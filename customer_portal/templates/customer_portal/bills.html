@@ -1,0 +1,8 @@
+<h1>Your Bills</h1>
+<ul>
+    {% for bill in bills %}
+    <li>
+        <a href="{% url 'bill_details' bill.id %}">Bill #{{ bill.id }} - GHS {{ bill.total_due }}</a>
+    </li>
+    {% endfor %}
+</ul>

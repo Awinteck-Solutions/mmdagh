@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2>Sent Signals</h2>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Subject</th>
+                <th>Recipients</th>
+                <th>Sent</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+{% for message in object_list %}
+  <div class="message">
+    <h3>{{ message.subject }}</h3>
+    <p>To: {{ message.police_region.name }}</p>
+    <p>Sent: {{ message.created_at }}</p>
+  </div>
+{% empty %}
+  <p>No sent messages found.</p>
+{% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

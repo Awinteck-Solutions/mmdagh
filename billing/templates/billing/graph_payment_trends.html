@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Payment Trends{% endblock %}
+
+{% block content %}
+<div class="container mt-20">
+    <h1 class="text-center mb-4">Payment Trends Over Time</h1>
+    <div class="chart-wrapper">
+        <canvas id="paymentTrendsChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('paymentTrendsChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ payment_months|safe }},
+            datasets: [{
+                label: 'Total Payments',
+                data: {{ payment_totals|safe }},
+                borderColor: '#36A2EB',
+                fill: false,
+            }]
+        }
+    });
+});
+</script>
+{% endblock %}

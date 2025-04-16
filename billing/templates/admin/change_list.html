@@ -1,0 +1,22 @@
+{% extends "admin/change_list.html" %}
+{% load static %} <!-- This line fixes the issue -->
+
+{% block content %}
+  <div class="dashboard-insights">
+    <h2>Revenue Overview</h2>
+    <p>Total Revenue Collected: GHS {{ total_revenue }}</p>
+
+    <h2>Payment Trends Over Time</h2>
+    <ul>
+      {% for trend in payment_trends %}
+        <li>{{ trend.month|date:"F Y" }}: GHS {{ trend.total }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Render default content -->
+  {{ block.super }}
+  
+  <!-- Add custom styles -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/admin.css' %}">
+{% endblock %}

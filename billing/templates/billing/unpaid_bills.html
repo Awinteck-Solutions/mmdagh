@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %}Unpaid Bills Management{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-5 mb-2">Unpaid Bills Management</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Unpaid Bills</li>
+                </ol>
+            </nav>
+        </div>
+        {% if user.is_superuser %}
+        <div class="d-flex gap-2">
+            <a href="{% url 'export_unpaid_bills_pdf' %}?region={{ selected_region }}&mmda={{ selected_mmda }}" 
+               class="btn btn-danger d-flex align-items-center">
+                <i class="bi bi-file-pdf me-2"></i> PDF
+            </a>
+            <a href="{% url 'export_unpaid_bills_excel' %}?region={{ selected_region }}&mmda={{ selected_mmda }}" 
+               class="btn btn-success d-flex align-items-center">
+                <i class="bi bi-file-excel me-2"></i> Excel
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Filters Card -->
+    {% if user.is_superuser %}
+    <div class="card shadow-sm mb-5">
+        <div class="card-body">
+            <h5 class="card-title mb-4"><i class="bi bi-funnel me-2"></i>Filter Bills</h5>
+            <form method="GET">
+                <div class="row g-4">
+                    <div class="col-md-5">
+                        <label class="form-label">Region</label>
+                        <select name="region" id="region" class="form-select">
+                            <option value="">All Regions</option>
+                            {% for region in regions %}
+                            <option value="{{ region.id }}" {% if region.id|stringformat:"s" == selected_region %}selected{% endif %}>
+                                {{ region.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">MMDA</label>
+                        <select name="mmda" id="mmda" class="form-select">
+                            <option value="">All MMDAs</option>
+                            {% for mmda in mmdas %}
+                            <option value="{{ mmda.id }}" {% if mmda.id|stringformat:"s" == selected_mmda %}selected{% endif %}>
+                                {{ mmda.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-filter me-2"></i>Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Summary Card -->
+    <div class="card shadow-sm mb-5 bg-danger bg-opacity-10 border-danger">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title text-danger"><i class="bi bi-exclamation-octagon me-2"></i>Total Outstanding</h5>
+                    <p class="mb-0 text-muted">Unpaid amount across all selected bills</p>
+                </div>
+                <div class="display-4 fw-bold text-danger">GHS {{ total_unpaid }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bills Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Recipient</th>
+                            <th>Ghana Card</th>
+                            <th>Location</th>
+                            <th>Category</th>
+                            <th>Contact</th>
+                            <th class="text-end">Amount Due</th>
+                            <th>Bill Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in unpaid_bills %}
+                        <tr>
+                            <td class="fw-bold">{{ forloop.counter }}</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="ms-2">
+                                        <div class="fw-bold">{{ bill.recipient_name }}</div>
+                                        <small class="text-muted">{{ bill.address }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><code>{{ bill.ghana_card }}</code></td>
+                            <td>
+                                <div class="text-truncate" style="max-width: 150px;">
+                                    {{ bill.gps_address }}
+                                </div>
+                            </td>
+                            <td><span class="badge bg-info">{{ bill.get_category_display }}</span></td>
+                            <td>{{ bill.contact_number }}</td>
+                            <td class="text-end fw-bold text-danger">GHS {{ bill.closing_balance }}</td>
+                            <td>{{ bill.bill_date|date:"M d, Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8">
+                                <div class="text-center py-5">
+                                    <i class="bi bi-check-circle fs-1 text-success"></i>
+                                    <h4 class="mt-3">No Unpaid Bills Found</h4>
+                                    <p class="text-muted">All bills are currently paid in the selected criteria</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'js/scripts.js' %}"></script>
+{% endblock %}

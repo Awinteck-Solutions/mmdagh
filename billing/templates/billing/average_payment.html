@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Average Payment Analysis{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-calculator text-primary me-2"></i>
+            Average Payment Analysis
+        </h1>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-primary btn-sm">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+            {% if average_payment %}
+            <div class="display-4 text-primary mb-3">
+                GHS {{ average_payment|floatformat:2 }}
+            </div>
+            <p class="lead text-muted mb-0">
+                Average Payment Amount
+            </p>
+            <div class="mt-4 text-muted small">
+                <i class="fas fa-info-circle me-2"></i>
+                Calculated from {{ payment_count }} total transactions
+            </div>
+            {% else %}
+            <div class="text-muted mb-3">
+                <i class="fas fa-chart-pie fa-3x"></i>
+            </div>
+            <p class="lead text-muted">
+                No payment records available
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if average_payment %}
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="text-muted mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        About This Average
+                    </h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2">
+                            <i class="fas fa-calendar me-2 text-primary"></i>
+                            Time Period: Current Fiscal Year
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-filter me-2 text-primary"></i>
+                            Includes all payment methods
+                        </li>
+                        <li>
+                            <i class="fas fa-database me-2 text-primary"></i>
+                            Based on verified transactions only
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.card {
+    border-radius: 0.75rem;
+    transition: transform 0.2s;
+}
+.card:hover {
+    transform: translateY(-3px);
+}
+</style>
+
+{% endblock %}

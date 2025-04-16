@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Educational Inst List{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4 text-center">Municipal Educational Institutions</h2>
+
+    <!-- Add New Educational Institution Button -->
+    <div class="d-flex justify-content-between mb-3">
+        <a href="{% url 'enter_ghana_card' %}" class="btn btn-success">Add New Educational Inst.</a>
+    </div>
+
+    <!-- Educational Institutions Table -->
+    <div class="table-responsive"> <!-- Ensures responsiveness -->
+        <table class="table table-bordered table-striped text-left">
+            <thead class="table-dark">
+                <tr>
+                    <th>Count</th>
+                    <th>S/No.</th>
+                    <th>Ghana Card</th>
+                    <th>School Name</th>
+                    <th>Ownership</th>
+                    <th>GPS</th>
+                    <th>Landmark</th>
+                    <th>Street Name</th>
+                    <th>Area Name</th>
+                    <th>Area Zone</th>
+                    <th>ECG</th>
+                    <th>Av. ECG Pole No</th>
+                    <th>Water</th>
+                    <th>Em. Teacher</th>
+                    <th>Em. Teacher Contact</th>
+                    <th>Date Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for education in educations %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ education.serial_number }}</td>
+                        <td>{{ education.ghana_card }}</td>
+                        <td>{{ education.school_name }}</td>
+                        <td>{{ education.school_type1 }}</td>
+                        <td>{{ education.gps_address }}</td>
+                        <td>{{ education.nearest_landmark }}</td>
+                        <td>{{ education.street_name }}</td>
+                        <td>{{ education.area_name }}</td>
+                        <td>{{ education.area_zone }}</td>
+                        <td>{{ education.electricity_access }}</td>
+                        <td>{{ education.ecg_pole_no }}</td>
+                        <td>{{ education.GWCL_supply }}</td>
+                        <td>{{ education.emergency_teacher_name }}</td>
+                        <td>{{ education.emergency_teacher_contact }}</td>
+                        <td>{{ education.date_created }}</td>
+                        <td>
+                            <a href="{% url 'education_detail' education.pk %}" class="btn btn-info btn-sm">View</a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="17" class="text-center">No education records found.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination Controls -->
+    <div class="d-flex justify-content-center mt-4">
+        {% if educations.has_previous %}
+            <a href="?page={{ educations.previous_page_number }}" class="btn btn-outline-primary mx-2">Previous</a>
+        {% endif %}
+        {% if educations.has_next %}
+            <a href="?page={{ educations.next_page_number }}" class="btn btn-outline-primary mx-2">Next</a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

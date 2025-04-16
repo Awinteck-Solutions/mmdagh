@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% block title %}Medical Facility Dashboard{% endblock %}
+{% block content %}
+
+<style>
+    :root {
+        --medical-blue: #0066CC;
+        --medical-teal: #008080;
+        --emergency-red: #CC0000;
+    }
+
+    .medical-dashboard {
+        background: #f5f9fc;
+        min-height: 100vh;
+    }
+
+    .dashboard-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        transition: transform 0.3s ease;
+        border-left: 4px solid var(--medical-blue);
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .emergency-btn {
+        background: var(--emergency-red);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 30px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .module-btn {
+        background: var(--medical-teal);
+        color: white !important;
+        padding: 0.8rem 1.5rem;
+        border-radius: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .quick-stats {
+        background: linear-gradient(135deg, #0066CC 0%, #004799 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+    }
+
+    .medical-icon {
+        font-size: 1.8rem;
+        margin-right: 1rem;
+    }
+</style>
+
+<div class="medical-dashboard">
+    <div class="container-fluid p-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-dark fw-bold">
+                <i class="fas fa-hospital medical-icon"></i>
+                Ghana Medical Facility Dashboard
+            </h2>
+            <button class="emergency-btn">
+                <i class="fas fa-plus-circle me-2"></i>
+                Emergency Admission
+            </button>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <div class="quick-stats">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">{{ current_patients }}</h4>
+                            <small>Current Patients</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">{{ available_beds }}</h4>
+                            <small>Available Beds</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">{{ pending_appointments }}</h4>
+                            <small>Pending Appointments</small>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <h4 class="mb-0">{{ critical_cases }}</h4>
+                            <small>Critical Cases</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Modules -->
+        <div class="row g-4">
+            <!-- Patient Management -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-user-injured fa-2x text-primary"></i>
+                        <h4 class="ms-2 mb-0">Medical Facilities</h4>
+                    </div>
+                    <p class="text-muted">Access Data of all Medical Facilities in Ghana</p>
+                    <a href="{% url 'ghmedical_list' %}" class="module-btn">
+                        <i class="fas fa-procedures"></i>
+                        Ghana medical Facilities
+                    </a>
+                </div>
+            </div>
+
+            <!-- Appointments -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-calendar-check fa-2x text-success"></i>
+                        <h4 class="ms-2 mb-0">Analytical Report </h4>
+                    </div>
+                    <p class="text-muted">Analytical report on status of facilities in Ghana</p>
+                    <a href="{% url 'ghmedical_reports' %}" class="module-btn">
+                        <i class="fas fa-clock"></i>
+                        Facility Reports
+                    </a>
+                </div>
+            </div>
+
+            <!-- Pharmacy -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-prescription-bottle fa-2x text-warning"></i>
+                        <h4 class="ms-2 mb-0">Pharmacy</h4>
+                    </div>
+                    <p class="text-muted">Access medication inventory and prescription records</p>
+                    <a href="pharmacy.html" class="module-btn">
+                        <i class="fas fa-capsules"></i>
+                        Pharmacy Portal
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Alerts -->
+        <div class="row mt-4">
+            <div class="col-md-8">
+                <div class="dashboard-card p-4">
+                    <h4 class="mb-3">
+                        <i class="fas fa-bell me-2"></i>
+                        Recent Alerts
+                    </h4>
+                    <div class="list-group">
+                        <div class="list-group-item d-flex justify-content-between">
+                            <div>
+                                <span class="badge bg-danger me-2">Critical</span>
+                                Patient in Ward 3 requires urgent attention
+                            </div>
+                            <small>5 mins ago</small>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between">
+                            <div>
+                                <span class="badge bg-warning me-2">Warning</span>
+                                Low stock of Painkillers (Paracetamol)
+                            </div>
+                            <small>2 hours ago</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="col-md-4">
+                <div class="dashboard-card p-4 h-100">
+                    <h4 class="mb-3">
+                        <i class="fas fa-heartbeat me-2"></i>
+                        Facility Status
+                    </h4>
+                    <div class="list-group">
+                        <div class="list-group-item">
+                            <i class="fas fa-power-off text-success me-2"></i>
+                            EHR System: Operational
+                        </div>
+                        <div class="list-group-item">
+                            <i class="fas fa-network-wired text-success me-2"></i>
+                            Lab Systems: Connected
+                        </div>
+                        <div class="list-group-item">
+                            <i class="fas fa-shield-alt text-success me-2"></i>
+                            Security Systems: Active
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

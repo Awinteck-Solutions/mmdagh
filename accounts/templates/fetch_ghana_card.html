@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Enter Ghana Card Number</h2>
+    <input type="text" id="ghana_card_input" placeholder="Enter Ghana Card" class="form-control">
+    <button id="fetch-data-button" class="btn btn-secondary mt-2">Fetch Data</button>
+
+    <h3>Personal Data of Owner</h3>
+    <div id="data-display" class="mt-3"></div>
+
+    <!-- Continue Button -->
+    <div id="continue-section" style="display: none;" class="mt-3">
+        <form method="POST" action="{% url 'create_education' %}">
+            {% csrf_token %}
+            <input type="hidden" id="ghana_card_hidden" name="ghana_card">
+            <button type="submit" class="btn btn-primary">Continue</button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.getElementById('fetch-data-button').addEventListener('click', function() {
+    var ghanaCard = document.getElementById('ghana_card_input').value.trim();
+
+    if (ghanaCard) {
+        fetch('/fetch-ghana-card/?ghana_card=' + ghanaCard, {
+            method: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('data-display').innerHTML = `<p class="text-danger">${data.error}</p>`;
+                document.getElementById('continue-section').style.display = 'none';
+            } else {
+                document.getElementById('data-display').innerHTML = `
+                    <p><b>First Name:</b> ${data.first_name}</p>
+                    <p><b>Surname:</b> ${data.surname}</p>
+                    <p><b>Gender:</b> ${data.gender}</p>
+                    <p><b>Date of Birth:</b> ${data.date_of_birth}</p>`;
+                document.getElementById('continue-section').style.display = 'block';
+                document.getElementById('ghana_card_hidden').value = ghanaCard;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    } else {
+        alert('Please enter a Ghana Card number.');
+    }
+});
+</script>
+{% endblock %}

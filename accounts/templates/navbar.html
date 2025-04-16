@@ -1,0 +1,183 @@
+<!-- Navigation -->
+<nav class="navbar navbar-expand-md navbar-light bg-white fixed-top shadow-sm">
+    <div class="container-fluid">
+        <!-- Brand -->
+        <a class="navbar-brand fw-bold fs-3 text-primary-gradient" href="{% url 'home' %}">
+            <span class="text-gradient">MMDA-GH</span>
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Content -->
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <!-- Left Navigation -->
+            <ul class="navbar-nav me-auto">
+                <!-- Home -->
+                <li class="nav-item">
+                    <a class="nav-link active px-3 rounded-3" href="{% url 'home' %}">
+                        <i class="bi bi-house-door me-1"></i>Home
+                    </a>
+                </li>
+
+                <!-- MMDA Records -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle px-3 rounded-3" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person me-1"></i>MMDA Records 
+                    </a>
+                    <ul class="dropdown-menu shadow border-0">
+                        <li><a class="dropdown-item" href="{% url 'personal_dashboard' %}">Personal Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{% url 'residential_dashboard' %}">Resential Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{% url 'enter_ghana_card' %}">Add Educational Data</a></li>
+                        <li><a class="dropdown-item" href="{% url 'education_list' %}">Education List</a></li>
+                        <li><a class="dropdown-item" href="{% url 'create_health' %}">Add Health Data</a></li>
+                        <li><a class="dropdown-item" href="{% url 'health_list' %}">Health List</a></li>
+                        <li><a class="dropdown-item" href="{% url 'create_government' %}">Add Govt Data</a></li>
+                        <li><a class="dropdown-item" href="{% url 'government_list' %}">Govt List</a></li>
+                        <li><a class="dropdown-item" href="{% url 'create_sme' %}">Add SME</a></li>
+                        <li><a class="dropdown-item" href="{% url 'sme_list' %}">Business/SME's List</a></li>
+                    </ul>
+                </li>
+
+                <!-- Accounts -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle px-3 rounded-3" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-cash me-1"></i>Accounts
+                    </a>
+                    <ul class="dropdown-menu shadow border-0">
+                        <li><a class="dropdown-item" href="{% url 'revenue_account' %}">Revenue</a></li>
+                        <li><a class="dropdown-item" href="{% url 'revenue_summary' %}">Revenue Summary</a></li>
+                        <li><a class="dropdown-item" href="{% url 'monthly_revenue_report' %}">Monthly Revenue</a></li>
+                        <li><a class="dropdown-item" href="{% url 'revenue_target' %}">Revenue Target</a></li>
+                        <li><a class="dropdown-item" href="{% url 'unpaid_bills' %}">Unpaid Bills</a></li>
+                        <li><a class="dropdown-item" href="{% url 'average_payment' %}">Ave Pmt</a></li>
+                        <li><a class="dropdown-item" href="{% url 'payment_analytics' %}">Payment Analytics</a></li>
+                        <li><a class="dropdown-item" href="{% url 'largest_payment' %}">Large Pmt</a></li>
+                        <li><a class="dropdown-item" href="{% url 'payments_by_method' %}">Pmt Method</a></li>
+                        <li><a class="dropdown-item" href="{% url 'payment_trends' %}">Pmt Trends</a></li>
+                        <li><a class="dropdown-item" href="{% url 'graph_view' %}">Graph</a></li>
+                        <li><a class="dropdown-item" href="{% url 'accumulated_owing' %}">Accumulated Owings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'customer_statement' %}">Customer Statement</a></li>
+
+                        <li><a class="dropdown-item" href="{% url 'bill_list' %}">Bill list</a></li>
+                        <li><a class="dropdown-item" href="{% url 'billing_logs' %}">billing_log</a></li>
+                        <li><a class="dropdown-item" href="{% url 'paynow' %}">Pay Now</a></li>
+
+
+
+                    </ul>
+                </li>
+
+                <!-- Vital Installations -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle px-3 rounded-3" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-shield-lock-fill me-1"></i>Vital Installations
+                    </a>
+                    <ul class="dropdown-menu shadow border-0">
+                        <li><a class="dropdown-item" href="{% url 'police_dashboard' %}">Police Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{% url 'fireservice_dashboard' %}">Fire Service Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{% url 'prisonsservice_dashboard' %}">Prisons Service Dashboard </a></li>
+                        <li><a class="dropdown-item" href="{% url 'educationservice_dashboard' %}">Education Service Dashboard</a></li>
+                        <li><a class="dropdown-item" href="{% url 'ghmedical_dashboard' %}">Medical Facilities Dashboard</a></li>
+                    </ul>
+                </li>
+
+                <!-- Map -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle px-3 rounded-3" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-map me-1"></i>Map
+                    </a>
+                    <ul class="dropdown-menu shadow border-0">
+                        <li><a class="dropdown-item" href="{% url 'distance_calculate' %}">Distance Calculator</a></li>
+                        <li><a class="dropdown-item" href="{% url 'google_map_search' %}">Google Map</a></li>
+                        <li><a class="dropdown-item" href="{% url 'leaflet_map' %}">Leaflet Map</a></li>
+                        <li><a class="dropdown-item" href="{% url 'trip_history' %}">History Distance</a></li>
+                        <li><a class="dropdown-item" href="{% url 'dashboard' %}">Customer</a></li>
+                    </ul>
+                </li>
+
+                <!-- Help Desk -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle px-3 rounded-3" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-chat-right-text me-1"></i>Help Desk
+                    </a>
+                    <ul class="dropdown-menu shadow border-0">
+                        <li><a class="dropdown-item" href="{% url 'create_ticket' %}">Helpdesk</a></li>
+                        <li><a class="dropdown-item" href="{% url 'manage_tickets' %}">Manage Tickets</a></li>
+                        <li><a class="dropdown-item" href="{% url 'ticket_list' %}">Ticket List</a></li>
+                        <li><a class="dropdown-item" href="{% url 'signal_create' %}">Signal Create</a></li>
+                        <li><a class="dropdown-item" href="{% url 'signal-inbox' %}">Signal inbox</a></li>
+                        <li><a class="dropdown-item" href="{% url 'signal-outbox' %}">Signal Outbox</a></li>
+ 
+                    </ul>
+                </li>
+            </ul>
+
+            <!-- Right Section -->
+            <div class="d-flex align-items-center gap-3">
+                <!-- Search -->
+                <form class="d-flex" method="get" action="{% url 'search' %}">
+                    <div class="input-group">
+                        <input class="form-control border-end-0 rounded-pill" type="search" 
+                            name="query" placeholder="Search..." 
+                            value="{{ request.GET.query|default:'' }}">
+                        <button class="btn btn-primary rounded-pill ms-n3 px-4" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- User Menu -->
+                <div class="dropdown">
+                    <a class="btn btn-link text-decoration-none dropdown-toggle" 
+                        href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle me-1"></i>{{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right me-2"></i>Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .text-gradient {
+        background: linear-gradient(45deg, #0d6efd, #0dcaf0);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .navbar-nav .nav-link {
+        transition: all 0.2s ease;
+    }
+    
+    .navbar-nav .nav-link:hover {
+        background: rgba(13, 110, 253, 0.1);
+        transform: translateY(-2px);
+    }
+    
+    .dropdown-menu {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .dropdown-item {
+        transition: all 0.2s ease;
+    }
+    
+    .dropdown-item:hover {
+        background: #f8f9fa;
+        padding-left: 1.5rem;
+    }
+</style>

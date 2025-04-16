@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Payment #{{ payment.id }} Details{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white">
+            <h2 class="h5 mb-0">
+                <i class="fas fa-receipt me-2"></i>
+                Payment Details - #{{ payment.id }}
+            </h2>
+        </div>
+        
+        <div class="card-body">
+            <div class="row">
+                <!-- Payment Details -->
+                <div class="col-md-6">
+                    <dl class="row">
+                        <dt class="col-sm-4">Payment Date</dt>
+                        <dd class="col-sm-8">{{ payment.payment_date|date:"M j, Y H:i" }}</dd>
+
+                        <dt class="col-sm-4">Amount</dt>
+                        <dd class="col-sm-8">GHS {{ payment.amount|floatformat:2 }}</dd>
+
+                        <dt class="col-sm-4">Method</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge bg-info">
+                                {{ payment.get_method_display }}
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Transaction ID</dt>
+                        <dd class="col-sm-8">{{ payment.transaction_id }}</dd>
+                    </dl>
+                </div>
+
+                <!-- Billing Information -->
+                <div class="col-md-6 border-start">
+                    <h5 class="mb-3">Billing Account</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Account Holder</dt>
+                        <dd class="col-sm-8">{{ billing.recipient_name }}</dd>
+
+                        <dt class="col-sm-4">GPS Address</dt>
+                        <dd class="col-sm-8">{{ billing.gps_address }}</dd>
+
+                        <dt class="col-sm-4">Ghana Card</dt>
+                        <dd class="col-sm-8">{{ billing.ghana_card }}</dd>
+
+                        <dt class="col-sm-4">Billing Year</dt>
+                        <dd class="col-sm-8">{{ billing.accounting_year }}</dd>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Related Payments -->
+            <div class="mt-4">
+                <h5>Recent Payments on This Account</h5>
+                <div class="list-group">
+                    {% for p in related_payments %}
+                    <a href="{% url 'payment-detail' p.pk %}" 
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <span>{{ p.payment_date|date:"M j, Y" }}</span>
+                            <span>GHS {{ p.amount|floatformat:2 }}</span>
+                            <span class="badge bg-secondary">{{ p.get_method_display }}</span>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="list-group-item">
+                        No other payments found for this account
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

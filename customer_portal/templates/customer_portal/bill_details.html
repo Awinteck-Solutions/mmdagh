@@ -1,0 +1,6 @@
+<h1>Bill Details</h1>
+<p><strong>Bill ID:</strong> {{ bill.id }}</p>
+<p><strong>Amount Due:</strong> GHS {{ bill.total_due }}</p>
+<p><strong>Payment Status:</strong> {{ bill.payment_status }}</p>
+<p><strong>Rooms:</strong> {{ bill.rooms }}</p>
+<a href="{% url 'pay_bill' bill.id %}">Pay Now</a>

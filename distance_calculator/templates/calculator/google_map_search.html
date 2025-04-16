@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% block title %}Google Map Search{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Map Search</title>
+    <style>
+        #map {
+            height: 500px; /* Set the height of the map */
+            width: 100%;   /* Set the width of the map */
+        }
+        .search-container {
+            margin: 20px 0;
+            display: flex;
+            justify-content: center;
+        }
+        .search-container input {
+            width: 60%;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .search-container button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .search-container button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places" async defer></script>
+
+</head>
+<body>
+    <h1 style="text-align: center;">Google Map Location Search</h1>
+    <div class="search-container">
+        <input type="text" id="search-box" placeholder="Search for a location or enter coordinates (lat, lon)" />
+        <button onclick="searchLocation()">Search</button>
+    </div>
+    <div id="map"></div>
+
+    <script>
+        let map;
+        let marker;
+
+        function initMap() {
+            // Initialize map with a default location
+            const defaultLocation = { lat: 37.7749, lng: -122.4194 }; // San Francisco, CA
+            map = new google.maps.Map(document.getElementById("map"), {
+                center: defaultLocation,
+                zoom: 12,
+            });
+
+            // Add a marker for the default location
+            marker = new google.maps.Marker({
+                position: defaultLocation,
+                map: map,
+                draggable: true, // Allow users to drag the marker
+            });
+
+            // Listener to update coordinates when marker is dragged
+            google.maps.event.addListener(marker, 'dragend', function (event) {
+                const lat = event.latLng.lat();
+                const lng = event.latLng.lng();
+                document.getElementById("search-box").value = `${lat}, ${lng}`;
+            });
+        }
+
+        function searchLocation() {
+            const input = document.getElementById("search-box").value;
+            const geocoder = new google.maps.Geocoder();
+
+            if (input.includes(",")) {
+                // Handle coordinates input (e.g., "37.7749, -122.4194")
+                const [lat, lng] = input.split(",").map(coord => parseFloat(coord.trim()));
+                const location = { lat, lng };
+                map.setCenter(location);
+                marker.setPosition(location);
+            } else {
+                // Handle location name input
+                geocoder.geocode({ address: input }, (results, status) => {
+                    if (status === "OK") {
+                        const location = results[0].geometry.location;
+                        map.setCenter(location);
+                        marker.setPosition(location);
+                    } else {
+                        alert("Geocoding failed: " + status);
+                    }
+                });
+            }
+        }
+
+        // Load the map once the page is loaded
+        window.onload = initMap;
+    </script>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,128 @@
+
+
+
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Business/Educational Institution Capture Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-2"> {{ request.user.assignment.region.name }}</h1>
+    <h2 class="mb-2"> {{ request.user.assignment.mmda.name }}</h2>
+    <h1 class="mb-2">Educational Institution Details</h1>
+    <h2 class="mb-2">{{ education.school_name }} </h2>
+    <h3 class="mb-2">{{ education.serial_number }}</h3>
+    
+    <!-- Business/SME's  Institution Details Table -->
+    <div>
+
+        <h2 class="mb-4">GENERAL DATA</h2>
+        <div align="left">
+        <p><strong>Serial Number:</strong> {{ education.serial_number }}</p>
+        <p><strong>Category:</strong> {{ education.category }}</p>
+        <p><strong>Educational Inst. Name:</strong> {{ education.school_name }}</p>
+        <p><strong>GES Approved ? :</strong> {{ education.ges_approved}}</p>
+        <p><strong>Type of service:</strong> {{ education.service_type }}</p>
+        <p><strong>Registered:</strong> {{ education.school_registered }}</p>
+        <p><strong>Institutional REG.No:</strong> {{ education.registration_no }}</p>
+        <p><strong>School Role:</strong> {{ education.school_role }}</p>
+        <p><strong>School Type:</strong> {{ education.school_type1 }}</p>
+        <p><strong>Boarding or Day :</strong> {{ education.boarding_facility}}</p>
+        <p><strong>Does the Sch has Bus(es) or Car (s):</strong> {{ education.school_buses_or_cars}}</p>
+        <p><strong>Nature Ownership:</strong> {{ education.nature_ownership }}</p>
+        <p><strong>Institutional Admin:</strong> {{ education.school_admin }}</p>
+        <p><strong>Institutional Admin GH Card:</strong> {{ education.admin_ghana_card }}</p>
+        <p><strong>Admin Contact:</strong> {{ education.school_admin_contact }}</p>
+        <p><strong>Area Zone:</strong> {{ education.area_zone }}</p>
+        <p><strong>Street Name:</strong> {{ education.street_name }}</p>
+        <p><strong>Ghana Post GPS:</strong> <a href="https://www.ghanapostgps.com/map/?q={{ education.gps_address }}" target="_blank" rel="noopener noreferrer">{{ education.gps_address }}</a></p>
+        <p><strong>Google Coordinates:</strong> <a href="https://www.google.com/maps?q={{ education.latitude }},{{education.longitude }}" target="_blank" rel="noopener noreferrer">{{ education.latitude }}, {{ education.longitude }}</a></p>
+        <p><strong>Institution's Location:</strong> {{ education.location }}</p>
+        <p><strong>Emergency contact:</strong> {{ education.emergency_name }},{{ education.emergency_contact }}</p>
+
+
+        <h2 class="mb-4">BUILDING INFORMATION</h2>
+        <div align="left">
+        <p><strong>Building Type:</strong> {{ education.building_type }}</p>
+        <p><strong>No.of Floors :</strong> {{ education.number_of_floors  }}</p>
+        <p><strong>Average No. of Students:</strong> {{ education.average_students }}</p>
+        <p><strong>Toilet Facility :</strong> {{ education.toilet_facility }}</p>
+        <p><strong>Parking Spaces:</strong> {{ education.paeducationrking_spaces }}</p>
+        <p><strong>Fenced :</strong> {{ education.fenced  }}</p>
+        <p><strong>Fencing Type:</strong> {{ education.fencing_type}}</p>
+        <p><strong>Building Condition:</strong> {{ education.building_condition }}</p>
+        <p><strong>Security Features:</strong> {{ education.security_features }}</p>
+        <p><strong>Construction Material:</strong> {{ education.construction_material }}</p>
+        <p><strong>Type of Roof:</strong> {{ education.type_of_roof }}</p>
+        <p><strong>Proximity to Public Infrastructure:</strong> {{ education.proximity_to_public_infrastructure }}</p>
+ 
+        <h2 class="mb-4">FACILITY RECORD</h2>
+        <div align="left">
+        <p><strong>Water Supply:</strong> {{ education.water_supply }}</p>
+        <p><strong>Electricity connection :</strong> {{ education.electricity_connection }}</p>
+        <p><strong>ECG Pole No.:</strong> {{ education.ecg_pole_no }}</p>
+
+
+        <p><strong>Has Backup generator:</strong> {{ education.has_backup_generator}}</p>
+        <p><strong>Sewage system:</strong> {{ education.sewage_system }}</p>
+        <p><strong>Waste Disposal Method:</strong> {{ education.waste_disposal_method }}</p>
+        <p><strong>Network connectivity:</strong> {{ education.network_connectivity}}</p>
+        <p><strong>Internet connectivity:</strong> {{ education.internet_connectivity}}</p>
+        <p><strong>Ambulance service Avialablity:</strong> {{ education.ambulance}}</p>
+        <p><strong>Road network:</strong> {{ education.road_network }}</p>
+        <p><strong>Road condition:</strong> {{ education.road_condition }}</p>
+
+
+        <h2 class="mb-4">RISK & CRIMINAL ACTIVITIES AROUND THE AREA</h2>
+        <div align="left">
+        <p><strong>Flood Risk Area:</strong> {{ education.flood_risk_area }}</p>
+        <p><strong>Criminal Activities:</strong> {{ education.criminal_activities_1}},{{ education.criminal_activities_2}},{{ education.criminal_activities_2}}</p>
+
+
+        <h2 class="mb-4">DATES</h2>
+        <div align="left">
+        <p><strong>Date Created:</strong> {{ education.date_created }}</p>
+        <p><strong>Date Updated:</strong> {{ education.date_updated }}</p>
+
+
+
+        <!-- Add more fields as needed -->
+    </div>
+
+        <tr>
+            <th>Profile Picture:</th>
+            <td>
+                {% if account.profile_picture %}
+                    <img src="{{ account.profile_picture.url }}" alt="Profile Picture" style="width:150px; height:150px;">
+                {% else %}
+                    No Picture Uploaded
+                {% endif %}
+            </td>
+        </tr>
+
+    <!-- Action Links -->
+    <div class="mt-4">
+        <a href="{% url 'education_list' %}" class="btn btn-secondary">Back to List</a>
+        <a href="{% url 'education_update' education.pk %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'education_delete' education.pk %}" class="btn btn-danger">Delete</a>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+    # Security
+
+
+
+
+
+    # Security
+    criminal_activities = models.JSONField(default=list)  # Replace multiple fields with a single JSONField
+    network_connectivity = models.CharField(max_length=50, choices=NETWORK_CHOICES)
+        # Road Network Section
+    road_network = models.BooleanField(default=False)  # If true, road_condition should be specified
+    road_condition = models.CharField(

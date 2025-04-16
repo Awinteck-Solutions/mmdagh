@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bill List</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid black; padding: 5px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h2>Property Rate Bills</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Recipient Name</th>
+                <th>Ghana Card</th>
+                <th>GPS Address</th>
+                <th>MMDA Name</th>
+                <th>Year Bill (GHS)</th>
+                <th>Total Paid (GHS)</th>
+                <th>Amount Left (GHS)</th>
+                <th>Payment Status</th>
+                <th>Bill Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for bill in bills %}
+            <tr>
+                <td>{{ bill.id }}</td>
+                <td>{{ bill.recipient_name }}</td>
+                <td>{{ bill.ghana_card }}</td>
+                <td>{{ bill.gps_address }}</td>
+                <td>{{ bill.name_mmda }}</td>
+                <td>{{ bill.amount }}</td>
+                <td>{{ bill.total_paid }}</td>
+                <td>{{ bill.closing_balance }}</td>
+                <td>{{ bill.payment_status }}</td>
+                <td>{{ bill.bill_date|date:"Y-m-d" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

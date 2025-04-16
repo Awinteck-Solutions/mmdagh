@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load crispy_forms_tags %}
+{% block title %}Billing Report{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="report-header mb-5">
+        <h1 class="display-5 fw-bold text-primary mb-3">Billing Report</h1>
+        
+        {% if account %}
+        <div class="account-card card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h3 class="mb-3"><i class="fas fa-user-circle me-2"></i>Account Details</h3>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <p class="mb-1"><strong>Name:</strong></p>
+                                <p class="text-muted">{{ account.surname }} {{ account.first_name }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-1"><strong>Bill ID:</strong></p>
+                                <p class="text-muted">#{{ account.id }}</p>
+                            </div>
+                            <div class="col-md-4">
+                                <p class="mb-1"><strong>GPS Address:</strong></p>
+                                <p class="text-muted">{{ account.gps_address }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 border-start">
+                        <button class="btn btn-outline-primary w-100 mb-2" onclick="window.print()">
+                            <i class="fas fa-print me-2"></i>Print Report
+                        </button>
+                        <p class="text-muted small mb-0">Generated on {% now "jS F Y H:i" %}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if report_data %}
+    <div class="report-years">
+        {% for data in report_data %}
+        <div class="year-card card shadow-sm mb-4">
+            <div class="card-header bg-light">
+                <h3 class="h5 mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>
+                    {{ data.year }} Billing Summary
+                </h3>
+            </div>
+            <div class="card-body">
+                <!-- Financial Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-4 mb-3">
+                        <div class="metric-card p-3 bg-primary text-white rounded-3">
+                            <h5 class="mb-0">Total Due</h5>
+                            <h2 class="mb-0">{{ data.total_due }}</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="metric-card p-3 bg-success text-white rounded-3">
+                            <h5 class="mb-0">Total Paid</h5>
+                            <h2 class="mb-0">{{ data.total_paid }}</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="metric-card p-3 {% if data.closing_balance < 0 %}bg-danger{% else %}bg-warning{% endif %} text-white rounded-3">
+                            <h5 class="mb-0">Closing Balance</h5>
+                            <h2 class="mb-0">{{ data.closing_balance }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Indicators -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="progress-card card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Payment Progress</h5>
+                                <div class="progress mb-3" style="height: 25px;">
+                                    <div class="progress-bar bg-success" 
+                                         role="progressbar" 
+                                         style="width: {{ data.percentage_paid_over_year_bill }}%"
+                                         aria-valuenow="{{ data.percentage_paid_over_year_bill }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ data.percentage_paid_over_year_bill|floatformat:2 }}%
+                                    </div>
+                                </div>
+                                <p class="small text-muted mb-0">
+                                    Percentage paid of total year bill
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="progress-card card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title">Balance Overview</h5>
+                                <div class="progress mb-3" style="height: 25px;">
+                                    <div class="progress-bar {% if data.closing_balance < 0 %}bg-danger{% else %}bg-warning{% endif %}" 
+                                         role="progressbar" 
+                                         style="width: {{ data.percentage_closing_balance_over_year_bill|absolute_value }}%"
+                                         aria-valuenow="{{ data.percentage_closing_balance_over_year_bill }}" 
+                                         aria-valuemin="0" 
+                                         aria-valuemax="100">
+                                        {{ data.percentage_closing_balance_over_year_bill|floatformat:2 }}%
+                                    </div>
+                                </div>
+                                <p class="small text-muted mb-0">
+                                    Closing balance relative to year bill
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transaction Details -->
+                <div class="transaction-details">
+                    <h5 class="mb-3"><i class="fas fa-file-invoice-dollar me-2"></i>Transaction History</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Payment Mode</th>
+                                    <th>Amount</th>
+                                    <th>Balance Impact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="table-info">
+                                    <td>01/01/{{ data.year }}</td>
+                                    <td>Brought Forward</td>
+                                    <td>{{ data.brought_forward }}</td>
+                                    <td>Initial Balance</td>
+                                </tr>
+                                <tr class="table-primary">
+                                    <td>01/01/{{ data.year }}</td>
+                                    <td>Year Bill</td>
+                                    <td>{{ data.year_bill }}</td>
+                                    <td>Total Charge</td>
+                                </tr>
+                                {% for payment in data.payment_details %}
+                                <tr class="table-success">
+                                    <td>{{ payment.date|date:"d/m/Y" }}</td>
+                                    <td>{{ payment.payment_mode }}</td>
+                                    <td>{{ payment.paid }}</td>
+                                    <td>Payment Received</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state text-center py-5">
+        <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
+        <h4 class="text-muted">No billing records found</h4>
+        <p class="text-muted">No billing information available for this account</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.metric-card {
+    transition: transform 0.2s;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.metric-card:hover {
+    transform: translateY(-3px);
+}
+
+.progress-card {
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+}
+
+.year-card {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.empty-state {
+    background-color: #f8f9fa;
+    border-radius: 12px;
+}
+
+.account-card {
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+</style>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+{% endblock %}

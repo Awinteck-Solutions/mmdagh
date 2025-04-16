@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% block title %}Payment Leaderboard{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-trophy text-warning me-2"></i>
+            Payment Leaderboard
+        </h1>
+        <div>
+            <button onclick="window.print()" class="btn btn-outline-primary me-2">
+                <i class="fas fa-print me-2"></i>Print
+            </button>
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                <i class="fas fa-arrow-left me-2"></i>Dashboard
+            </a>
+        </div>
+    </div>
+
+    {% if largest_payment %}
+    <!-- Champion Payment Card -->
+    <div class="card shadow-lg mb-4 border-warning">
+        <div class="card-header bg-warning text-white">
+            <h4 class="mb-0">
+                <i class="fas fa-crown me-2"></i>
+                Largest Payment Record
+            </h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-3">Amount</dt>
+                        <dd class="col-sm-9 display-6">GHS {{ largest_payment.amount|floatformat:2 }}</dd>
+
+                        <dt class="col-sm-3">Recipient</dt>
+                        <dd class="col-sm-9">{{ largest_payment.billing.recipient_name }}</dd>
+
+                        <dt class="col-sm-3">Date</dt>
+                        <dd class="col-sm-9">{{ largest_payment.payment_date|date:"M j, Y" }}</dd>
+
+                        <dt class="col-sm-3">Method</dt>
+                        <dd class="col-sm-9">
+                            <span class="badge bg-primary">
+                                {{ largest_payment.get_method_display }}
+                            </span>
+                        </dd>
+                    </dl>
+                </div>
+                <div class="col-md-4 border-start">
+                    <div class="text-center">
+                        <i class="fas fa-award fa-4x text-warning mb-3"></i>
+                        <p class="text-muted mb-0">Record Holder</p>
+                        <h5 class="mb-0">{{ largest_payment.billing.gps_address }}</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Visualization & Table Section -->
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Top Payments Distribution</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_payments %}
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="paymentsChart"></canvas>
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="fas fa-chart-pie fa-2x"></i>
+                        <p class="mb-0 mt-2">No data to display</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Top 10 Payments</h5>
+                    <div class="small">
+                        Showing {{ top_payments|length }} records
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Amount (GHS)</th>
+                                    <th>Recipient</th>
+                                    <th>Date</th>
+                                    <th>Method</th>
+                                    <th>Location</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in top_payments %}
+                                <tr class="{% if forloop.first %}table-warning{% endif %}">
+                                    <td>
+                                        <span class="badge bg-{% if forloop.first %}warning{% else %}secondary{% endif %}">
+                                            #{{ forloop.counter }}
+                                        </span>
+                                    </td>
+                                    <td class="fw-bold">{{ payment.amount|floatformat:2 }}</td>
+                                    <td>{{ payment.billing.recipient_name }}</td>
+                                    <td>{{ payment.payment_date|date:"Y-m-d" }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            {{ payment.get_method_display }}
+                                        </span>
+                                    </td>
+                                    <td class="small">
+                                        <i class="fas fa-map-marker-alt text-danger"></i>
+                                        {{ payment.billing.gps_address|truncatechars:20 }}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">
+                                        <i class="fas fa-folder-open fa-2x mb-3"></i>
+                                        <p class="mb-0">No payment records found</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if top_payments %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('paymentsChart').getContext('2d');
+    const paymentsData = {
+        labels: [{% for p in top_payments %}"{{ p.billing.recipient_name|truncatechars:15 }}",{% endfor %}],
+        amounts: [{% for p in top_payments %}{{ p.amount }},{% endfor %}]
+    };
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: paymentsData.labels,
+            datasets: [{
+                label: 'Amount (GHS)',
+                data: paymentsData.amounts,
+                backgroundColor: '#ffc107',
+                borderColor: '#ffc107',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => 
+                            `GHS ${context.raw.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (value) => `GHS ${value.toLocaleString()}`
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+
+<style>
+.chart-container { position: relative; min-height: 300px; }
+.table-hover tbody tr:hover { background-color: rgba(255, 193, 7, 0.1); }
+.border-warning { border-color: #ffc107 !important; }
+</style>
+
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Business/SME's Capture Details{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4">Business/SME's Details: {{ sme.serial_number }}</h1>
+    
+    <!-- Business/SME's  Institution Details Table -->
+    <div>
+
+        <h2 class="mb-4">GENERAL DATA</h2>
+        <div align="left">
+        <p><strong>Serial Number:</strong> {{ sme.serial_number }}</p>
+        <p><strong>Category:</strong> {{ sme.category }}</p>
+        <p><strong>Business/SME Name:</strong> {{ sme.institutional_name }}</p>
+        <p><strong>Type of service:</strong> {{ sme.service_type }}</p>
+        <p><strong>Registered:</strong> {{ sme.sme_registered }}</p>
+        <p><strong>Institutional REG.No:</strong> {{ sme.Registration_no }}</p>
+        <p><strong>Nature Ownership:</strong> {{ sme.nature_ownership }}</p>
+        <p><strong>Institutional Admin:</strong> {{ sme.sme_admin }}</p>
+        <p><strong>Institutional Admin GH Card:</strong> {{ sme.sme_admin_ghana_card }}</p>
+        <p><strong>Admin Contact:</strong> {{ sme.sme_admin_contact }}</p>
+        <p><strong>Area Zone:</strong> {{ sme.area_zone }}</p>
+        <p><strong>Street Name:</strong> {{ sme.street_name }}</p>
+        <p><strong>Ghana Post GPS:</strong> <a href="https://www.ghanapostgps.com/map/?q={{ sme.gps_address }}" target="_blank" rel="noopener noreferrer">{{ sme.gps_address }}</a></p>
+        <p><strong>Google Coordinates:</strong> <a href="https://www.google.com/maps?q={{ sme.latitude }},{{sme.longitude }}" target="_blank" rel="noopener noreferrer">{{ sme.latitude }}, {{ sme.longitude }}</a></p>
+        <p><strong>Institution's Location:</strong> {{ sme.location }}</p>
+        <p><strong>Emergency contact:</strong> {{ sme.emergency_name }},{{ sme.emergency_contact }}</p>
+
+        <h2 class="mb-4">BUILDING INFORMATION</h2>
+        <div align="left">
+        <p><strong>Building Type:</strong> {{ sme.building_type }}</p>
+        <p><strong>No.of Floors :</strong> {{ sme.number_of_floors  }}</p>
+        <p><strong>Average Daily Admission:</strong> {{ sme.average_daily_admin }}</p>
+        <p><strong>Toilet Facility :</strong> {{ sme.toilet_facility }}</p>
+        <p><strong>Parking Spaces:</strong> {{ sme.parking_spaces }}</p>
+        <p><strong>Fenced :</strong> {{ sme.fenced  }}</p>
+        <p><strong>Fencing Type:</strong> {{ sme.fencing_type}}</p>
+        <p><strong>Building Condition:</strong> {{ sme.building_condition }}</p>
+        <p><strong>Security Features:</strong> {{ sme.security_features }}</p>
+        <p><strong>Construction Material:</strong> {{ sme.construction_material }}</p>
+        <p><strong>Type of Roof:</strong> {{ sme.type_of_roof }}</p>
+        <p><strong>Proximity to Public Infrastructure:</strong> {{ sme.proximity_to_public_infrastructure }}</p>
+ 
+        <h2 class="mb-4">FACILITY RECORD</h2>
+        <div align="left">
+        <p><strong>Water Supply:</strong> {{ sme.water_supply }}</p>
+        <p><strong>Electricity connection :</strong> {{ sme.electricity_connection }}</p>
+        <p><strong>Has Backup generator:</strong> {{ sme.has_backup_generator}}</p>
+        <p><strong>Sewage system:</strong> {{ sme.sewage_system }}</p>
+        <p><strong>Waste Disposal Method:</strong> {{ sme.waste_disposal_method }}</p>
+        <p><strong>Network connectivity:</strong> {{ sme.network_connectivity}}</p>
+        <p><strong>Internet connectivity:</strong> {{ sme.internet_connectivity}}</p>
+        <p><strong>Ambulance service Avialablity:</strong> {{ sme.ambulance}}</p>
+        <p><strong>Road network:</strong> {{ sme.road_network }}</p>
+        <p><strong>Road condition:</strong> {{ sme.road_condition }}</p>
+
+
+        <h2 class="mb-4">RISK & CRIMINAL ACTIVITIES AROUND THE AREA</h2>
+        <div align="left">
+        <p><strong>Flood Risk Area:</strong> {{ sme.flood_risk_area }}</p>
+        <p><strong>Criminal Activities:</strong> {{ sme.criminal_activities}}</p>
+
+
+        <h2 class="mb-4">DATES</h2>
+        <div align="left">
+        <p><strong>Date Created:</strong> {{ sme.date_created }}</p>
+        <p><strong>Date Updated:</strong> {{ sme.date_updated }}</p>
+
+
+        <!-- Add more fields as needed -->
+    </div>
+
+        <tr>
+            <th>Profile Picture:</th>
+            <td>
+                {% if account.profile_picture %}
+                    <img src="{{ account.profile_picture.url }}" alt="Profile Picture" style="width:150px; height:150px;">
+                {% else %}
+                    No Picture Uploaded
+                {% endif %}
+            </td>
+        </tr>
+
+    <!-- Action Links -->
+    <div class="mt-4">
+        <a href="{% url 'sme_list' %}" class="btn btn-secondary">Back to List</a>
+        <a href="{% url 'sme_update' sme.pk %}" class="btn btn-warning">Edit</a>
+        <a href="{% url 'sme_delete' sme.pk %}" class="btn btn-danger">Delete</a>
+    </div>
+</div>
+{% endblock %}
+
+
+
+
+    # Security
+
+
+
+
+
+    # Security
+    criminal_activities = models.JSONField(default=list)  # Replace multiple fields with a single JSONField
+    network_connectivity = models.CharField(max_length=50, choices=NETWORK_CHOICES)
+        # Road Network Section
+    road_network = models.BooleanField(default=False)  # If true, road_condition should be specified
+    road_condition = models.CharField(

@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Map Section -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="h4 mb-0"><i class="fas fa-map-marked-alt me-2"></i>Route Map</h2>
+                </div>
+                <div class="card-body p-0">
+                    <div class="map-container" style="height: 600px;">
+                        {{ map_html|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Trip Summary Card -->
+            <div class="card shadow-lg mb-4">
+                <div class="card-header bg-success text-white">
+                    <h2 class="h4 mb-0"><i class="fas fa-route me-2"></i>Trip Summary</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="alert alert-primary">
+                                <h5 class="mb-1"><i class="fas fa-map-pin me-2"></i>Start</h5>
+                                <p class="mb-0 fw-bold">{{ start_address|title }}</p>
+                            </div>
+                            <div class="alert alert-danger">
+                                <h5 class="mb-1"><i class="fas fa-flag-checkered me-2"></i>End</h5>
+                                <p class="mb-0 fw-bold">{{ end_address|title }}</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="info-card bg-light p-3 rounded">
+                                <h6><i class="fas fa-road me-2"></i>Distance</h6>
+                                <p class="h3 text-primary">{{ distance }} km</p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="info-card bg-light p-3 rounded">
+                                <h6><i class="fas fa-clock me-2"></i>Duration</h6>
+                                <p class="h3 text-primary">{{ travel_time }} mins</p>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="weather-card p-3 rounded bg-info text-white">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <h6><i class="fas fa-cloud-sun me-2"></i>Start Weather</h6>
+                                        <p class="mb-0">{{ start_weather.temperature }}°C</p>
+                                        <small>{{ start_weather.description|title }}</small>
+                                    </div>
+                                    <div class="col-6">
+                                        <h6><i class="fas fa-cloud-moon me-2"></i>End Weather</h6>
+                                        <p class="mb-0">{{ end_weather.temperature }}°C</p>
+                                        <small>{{ end_weather.description|title }}</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alternative Routes Card -->
+            <div class="card shadow-lg">
+                <div class="card-header bg-warning text-dark">
+                    <h2 class="h4 mb-0"><i class="fas fa-random me-2"></i>Alternative Routes</h2>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for route in alternative_routes %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h5 class="mb-1">Route {{ forloop.counter }}</h5>
+                                    <small class="text-muted">{{ route.distance }} km / {{ route.time }} mins</small>
+                                </div>
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        data-bs-toggle="tooltip" 
+                                        title="View on map"
+                                        onclick="highlightRoute({{ forloop.counter0 }})">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="fixed-bottom bg-white shadow-lg p-3">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between">
+                <div>
+                    <button class="btn btn-primary" onclick="window.print()">
+                        <i class="fas fa-print me-2"></i>Print
+                    </button>
+                    <a href="{% url 'distance_calculate' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-calculator me-2"></i>New Calculation
+                    </a>
+                </div>
+                <div class="d-flex align-items-center">
+                    <span class="me-3">Share:</span>
+                    <input type="text" class="form-control share-url" 
+                           value="{{ share_url }}" 
+                           style="width: 300px;" 
+                           readonly>
+                    <button class="btn btn-success ms-2" onclick="copyShareUrl()">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .map-container {
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .weather-card {
+        background: linear-gradient(135deg, #17a2b8, #117a8b);
+    }
+    
+    .info-card {
+        transition: transform 0.2s;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .list-group-item {
+        transition: all 0.2s;
+    }
+    
+    .fixed-bottom {
+        box-shadow: 0 -2px 20px rgba(0,0,0,0.1);
+        border-top: 1px solid #eee;
+    }
+    
+    .share-url {
+        transition: all 0.3s;
+    }
+    
+    .share-url:focus {
+        box-shadow: 0 0 0 3px rgba(25,135,84,0.25);
+    }
+</style>
+
+<script>
+    function copyShareUrl() {
+        const urlField = document.querySelector('.share-url');
+        urlField.select();
+        document.execCommand('copy');
+        new bootstrap.Toast({
+            body: 'URL copied to clipboard!',
+            className: 'bg-success text-white'
+        }).show();
+    }
+
+    function highlightRoute(routeIndex) {
+        // Implement map highlight logic here
+        console.log('Highlighting route:', routeIndex);
+    }
+    
+    // Initialize tooltips
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltips = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltips.map(t => new bootstrap.Tooltip(t))
+    });
+</script>
+{% endblock %}

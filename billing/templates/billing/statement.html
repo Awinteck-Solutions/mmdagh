@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Billing Statement - {{ billing.recipient_name }}{% endblock %}
+
+{% block content %}
+<div class="statement-container">
+    <div class="statement-header">
+        <div class="header-content">
+            <div class="company-info">
+                <img src="{% static 'img/logo.png' %}" alt="Company Logo" class="logo">
+                <h1>Billing Statement</h1>
+            </div>
+            <div class="statement-meta">
+                <p class="statement-date">Statement Date: {% now "F j, Y" %}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="account-summary">
+        <h2>{{ billing.recipient_name }}</h2>
+        <div class="summary-grid">
+            <div class="summary-card">
+                <h3>Account Summary</h3>
+                <div class="summary-item">
+                    <span>Billing Year:</span>
+                    <strong>{{ billing.accounting_year }}</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Total Due:</span>
+                    <strong>GHS {{ billing.total_due|floatformat:2 }}</strong>
+                </div>
+                <div class="summary-item">
+                    <span>Total Paid:</span>
+                    <strong>GHS {{ billing.total_paid|floatformat:2 }}</strong>
+                </div>
+                <div class="summary-item highlight">
+                    <span>Closing Balance:</span>
+                    <strong>GHS {{ billing.closing_balance|floatformat:2 }}</strong>
+                </div>
+            </div>
+            
+            <div class="progress-card">
+                <h3>Payment Progress</h3>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: {{ percentage_paid }}%">
+                        <span class="progress-text">{{ percentage_paid|floatformat:2 }}%</span>
+                    </div>
+                </div>
+                <div class="progress-labels">
+                    <span>0%</span>
+                    <span>100%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="payment-history">
+        <h3>Payment History</h3>
+        {% if payments %}
+        <div class="table-responsive">
+            <table class="payment-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Payment Method</th>
+                        <th>Amount (GHS)</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr>
+                        <td>{{ payment.payment_date|date:"M j, Y H:i" }}</td>
+                        <td>{{ payment.method }}</td>
+                        <td>{{ payment.amount|floatformat:2 }}</td>
+                        <td>{{ payment.reference|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-payments">
+            <i class="bi bi-info-circle"></i>
+            <p>No payment records found for this billing period</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="statement-footer">
+        <button class="print-btn" onclick="window.print()">
+            <i class="bi bi-printer"></i> Print Statement
+        </button>
+        <p class="disclaimer">This is an automatically generated statement. Please contact support for any discrepancies.</p>
+    </div>
+</div>
+
+<style>
+.statement-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    border-radius: 12px;
+}
+
+.statement-header {
+    border-bottom: 2px solid #eee;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.company-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.logo {
+    height: 60px;
+    width: auto;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.summary-card, .progress-card {
+    background: #f8f9fa;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #eee;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.8rem 0;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.highlight {
+    color: #2a5a8d;
+    font-weight: 600;
+}
+
+.progress-container {
+    background: #e9ecef;
+    height: 30px;
+    border-radius: 15px;
+    margin: 1.5rem 0;
+    position: relative;
+}
+
+.progress-bar {
+    background: #4e73df;
+    height: 100%;
+    border-radius: 15px;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-text {
+    position: absolute;
+    right: 10px;
+    color: white;
+    line-height: 30px;
+    font-weight: 500;
+}
+
+.payment-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+.payment-table th,
+.payment-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.payment-table th {
+    background: #f8f9fa;
+    font-weight: 500;
+}
+
+.statement-footer {
+    margin-top: 2rem;
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid #eee;
+}
+
+.print-btn {
+    background: #4e73df;
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.print-btn:hover {
+    background: #2a5a8d;
+}
+
+.disclaimer {
+    color: #6c757d;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+}
+
+.no-payments {
+    text-align: center;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    color: #6c757d;
+}
+
+@media (max-width: 768px) {
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .statement-container {
+        padding: 1rem;
+        margin: 1rem;
+    }
+}
+</style>
+
+{% endblock %}

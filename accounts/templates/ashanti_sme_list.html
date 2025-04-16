@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block title %} MMDA Business/SME's List 
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="mb-4 text-center">Business/SME's List</h1>
+
+    <!-- Create New Health Account Button -->
+    <div class="d-flex justify-content-between mb-4">
+        <a href="{% url 'create_sme' %}" class="btn btn-success">Create New Business/SME's Account</a>
+    </div>
+
+    <!-- Accounts Table -->
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Serial</th>
+                    <th>Biz Name</th>
+                    <th>Biz contact</th>
+                    <th>Ownership</th>
+                    <th>Admin Name</th>
+                    <th>Admin Contact</th>
+                    <th>Facility Location</th>
+                    <th>GPS Address</th>
+                    <th>Coordinates</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sme in smes %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ sme.serial_number }}</td>
+                    <td>{{ sme.sme_contact }}</td>
+                    <td>{{ sme.sme_name }}</td>
+                    <td>{{ sme.nature_ownership }}</td>
+                    <td>{{ sme.sme_admin }}</td>
+                    <td>
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#contactModal{{ forloop.counter }}">
+                            {{ sme.sme_admin_contact }}
+                        </a>
+                    </td>
+                    <td>{{ sme.location }}</td>
+                    <td>
+                        <a href="https://www.ghanapostgps.com/map/?q={{ sme.gps_address }}" target="_blank" rel="noopener noreferrer">{{ sme.gps_address }}</a>
+                    </td>
+                    <td>
+                        <a href="https://www.google.com/maps?q={{ sme.latitude }},{{ sme.longitude }}" target="_blank" rel="noopener noreferrer">
+                            {{ sme.latitude }}, {{ sme.longitude }}
+                        </a>
+                    </td>
+                    <td>
+                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modal{{ sme.pk }}">View Details</button>
+                    </td>
+                </tr>
+
+                <!-- Contact Modal -->
+                <div class="modal fade" id="contactModal{{ forloop.counter }}" tabindex="-1" aria-labelledby="contactModalLabel{{ forloop.counter }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="contactModalLabel{{ forloop.counter }}">Contact Options</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Select how you would like to contact <strong>{{ sme.sme_admin_contact }}</strong>:</p>
+                                <div class="d-flex justify-content-between">
+                                    <!-- WhatsApp Link -->
+                                    <a href="https://wa.me/{{ sme.sme_admin_contact|slice:':-1' }}" 
+                                       class="btn btn-success" target="_blank">
+                                       WhatsApp
+                                    </a>
+                                    <!-- SMS Link -->
+                                    <a href="sms:{{ sme.sme_admin_contact }}" 
+                                       class="btn btn-primary">
+                                       SMS
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details Modal -->
+                <div class="modal fade" id="modal{{ sme.pk }}" tabindex="-1" aria-labelledby="modalLabel{{ sme.pk }}" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalLabel{{ sme.pk }}">Detailed Health Information: {{ sme.sme_name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p><strong>Serial Number:</strong> {{ sme.serial_number }}</p>
+                                <p><strong>Category:</strong> {{ sme.category }}</p>
+                                <p><strong>Govt Inst. Name:</strong> {{ sme.sme_name }}</p>
+                                <p><strong>Biz contact:</strong> {{ sme.sme_contact }}</p>
+                                <p><strong>Govt Inst. Admin:</strong> {{ sme.sme_admin }}</p>
+                                <p><strong>Admin Contact:</strong> <a href="#" data-bs-toggle="modal" data-bs-target="#contactModal{{ forloop.counter }}">{{ sme.sme_admin_contact }}</a></p>
+                                <p><strong>Ghana Post GPS:</strong> <a href="https://www.ghanapostgps.com/map/?q={{ sme.gps_address }}" target="_blank" rel="noopener noreferrer">{{ sme.gps_address }}</a></p>
+                                <p><strong>Google Coordinates:</strong> <a href="https://www.google.com/maps?q={{ sme.latitude }},{{ sme.longitude }}" target="_blank" rel="noopener noreferrer">{{ sme.latitude }}, {{ sme.longitude }}</a></p>
+                                <p><strong>Location:</strong> {{ sme.location }}</p>
+                                <p><strong>Area Zone:</strong> {{ sme.area_zone }}</p>
+                                <p><strong>Emergency Contact:</strong> {{ sme.emergency_name }}, {{ sme.emergency_contact }}</p>
+                                <p><strong>Building Type:</strong> {{ sme.building_type }}</p>
+                                <p><strong>Proximity to Public Infrastructure:</strong> {{ sme.proximity_to_public_infrastructure }}</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a href="{% url 'sme_detail' sme.id %}" class="btn btn-primary">More Details</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center">No sme captures found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+                    <th>Neighbor</th>
+                    <th>Ownership_Status</th>
+                    <th>Network</th>
+                    <th>Date Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for government in governments %}
+                    <tr>
+                        <td>{{ forloop.counter }}</td>
+                        <td>{{ government.serial_number }}</td>
+                        <td>{{ government.get_category_display }}</td>
+                        <td>{{ government.gps_address }}</td>
+                        <td>{{ government.neighbor_emergency_name }} {{ neighbor_emergency_contact }}</td>
+                        <td>{{ government.Ownership_Status }}</td>
+                        <td>{{ government.network_connectivity }}</td>
+                        <td>{{ government.date_created }}</td>
+                        <td>
+                            {% if government.pk %}
+                                <a href="{% url 'government_detail' government.pk %}" class="btn btn-info btn-sm">View</a>
+                                <a href="{% url 'government_update' government.pk %}" class="btn btn-primary btn-sm">Edit</a>
+                                <a href="{% url 'government_delete' government.pk %}" class="btn btn-danger btn-sm">Delete</a>
+                            {% else %}
+                                <span class="text-danger">No valid ID</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No records found.</td>
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}

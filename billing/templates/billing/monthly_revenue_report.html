@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Revenue Report{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-chart-bar text-primary me-2"></i>
+            Revenue Report - {{ current_year }}
+        </h1>
+        <button onclick="window.print()" class="btn btn-outline-primary">
+            <i class="fas fa-print me-2"></i>Print Report
+        </button>
+    </div>
+
+    <!-- Summary Card -->
+    <div class="card shadow-sm mb-4 border-primary">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="mb-0">GHS {{ total_revenue|floatformat:2|intcomma }}</h3>
+                    <p class="text-muted mb-0">Total Revenue Collected</p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <i class="fas fa-coins fa-3x text-primary"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Chart -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Monthly Revenue Trend</h5>
+        </div>
+        <div class="card-body">
+            <div class="chart-container" style="height: 400px;">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Breakdown -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Monthly Breakdown</h5>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Month</th>
+                            <th class="text-end">Revenue (GHS)</th>
+                            <th class="text-end">% of Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for month in monthly_revenue %}
+                        <tr>
+                            <td>{{ month.month|date:"F Y" }}</td>
+                            <td class="text-end">{{ month.total|default:0|floatformat:2|intcomma }}</td>
+                            <td class="text-end">
+                                {% widthratio month.total total_revenue 100 as percentage %}
+                                {{ percentage|floatformat:1 }}%
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-5 text-muted">
+                                No revenue data available
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    const monthlyData = {
+        labels: [{% for month in monthly_revenue %}"{{ month.month|date:'M' }}",{% endfor %}],
+        amounts: [{% for month in monthly_revenue %}{{ month.total|default:0 }},{% endfor %}]
+    };
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: monthlyData.labels,
+            datasets: [{
+                label: 'Monthly Revenue (GHS)',
+                data: monthlyData.amounts,
+                backgroundColor: '#4e73df',
+                borderColor: '#2e59d9',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (context) => 
+                            `GHS ${context.raw.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: (value) => `GHS ${value.toLocaleString()}`
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.chart-container {
+    position: relative;
+    min-height: 400px;
+}
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+</style>
+
+{% endblock %}

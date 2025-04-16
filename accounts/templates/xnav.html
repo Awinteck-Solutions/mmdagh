@@ -1,0 +1,108 @@
+<!-- Navigation -->
+<nav class="navbar navbar-expand-md navbar-dark bg-primary fixed-top shadow">
+    <div class="container-fluid">
+        <!-- Brand Name with Logo -->
+        <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}">
+            <i class="fas fa-city me-2"></i>MMDA-GH
+        </a>
+
+        <!-- Mobile Toggle -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Navbar Content -->
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <!-- Main Navigation -->
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'home' %}">
+                        <i class="fas fa-home me-1"></i>Home
+                    </a>
+                </li>
+                
+                <!-- Dropdown Menus -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user me-1"></i>Individual
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <!-- Keep your existing dropdown items here -->
+                        <!-- Consider organizing these into subcategories -->
+                    </ul>
+                </li>
+
+                <!-- Repeat similar structure for other dropdowns -->
+                <!-- Add consistent icons for each main category -->
+                
+            </ul>
+
+            <!-- Right Section -->
+            <div class="d-flex align-items-center">
+                <!-- Search -->
+                <form class="me-3" method="get" action="{% url 'search' %}">
+                    <div class="input-group">
+                        <input class="form-control form-control-sm" type="search" 
+                               name="query" placeholder="Search..." 
+                               aria-label="Search"
+                               value="{{ request.GET.query|default:'' }}">
+                        <button class="btn btn-light btn-sm" type="submit">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- User Menu -->
+                <div class="dropdown">
+                    <a class="btn btn-link text-white dropdown-toggle" href="#" 
+                       role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>{{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .navbar {
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-link {
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        transition: all 0.2s ease;
+    }
+    
+    .nav-link:hover, .nav-link:focus {
+        background: rgba(255,255,255,0.15);
+        transform: translateY(-1px);
+    }
+    
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    }
+    
+    .dropdown-item {
+        transition: all 0.2s ease;
+    }
+    
+    .dropdown-item:hover {
+        background: #f8f9fa;
+        padding-left: 1.5rem;
+    }
+</style>

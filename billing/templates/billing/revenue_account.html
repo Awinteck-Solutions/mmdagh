@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load crispy_forms_tags %}
+{% block title %}Property Rate Revenue 2024{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+            <i class="fas fa-chart-line me-2 text-primary"></i>
+            Revenue Dashboard 2024
+        </h1>
+        <button onclick="window.print()" class="btn btn-outline-primary">
+            <i class="fas fa-print me-2"></i>Print Report
+        </button>
+    </div>
+
+    <!-- Revenue Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-6 col-xl-4 mb-3">
+            <div class="card shadow-sm border-primary">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="card-title text-muted mb-2">Total Revenue</h5>
+                            <h2 class="mb-0">GHS {{ total_revenue|floatformat:2 }}</h2>
+                        </div>
+                        <i class="fas fa-wallet fa-2x text-primary"></i>
+                    </div>
+                    <div class="mt-3">
+                        <span class="badge bg-success">↑ 12%</span>
+                        <small class="text-muted">vs previous period</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add additional metrics cards here -->
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label">Date Range</label>
+                    <input type="date" class="form-control" name="start_date">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Payment Method</label>
+                    <select class="form-select" name="method">
+                        <option value="">All Methods</option>
+                        {% for value, name in payment_methods %}
+                        <option value="{{ value }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-filter me-2"></i>Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Payment Records -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Billing ID</th>
+                            <th>Payer</th>
+                            <th>Account</th>
+                            <th>Location</th>
+                            <th class="text-end">Amount (GHS)</th>
+                            <th>Method</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for payment in payments %}
+                        <tr class="clickable-row" data-href="{% url 'payment-detail' payment.id %}">
+                            <td>{{ forloop.counter }}</td>
+                            <td><span class="badge bg-secondary">#{{ payment.billing.id }}</span></td>
+                            <td>{{ payment.billing.recipient_name }}</td>
+                            <td>{{ payment.billing.ghana_card }}</td>
+                            <td>
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                {{ payment.billing.gps_address }}
+                            </td>
+                            <td class="text-end fw-bold text-nowrap">
+                                GHS {{ payment.amount|floatformat:2 }}
+                            </td>
+                            <td>
+                                <span class="badge {% if payment.method == 'cash' %}bg-success{% else %}bg-info{% endif %}">
+                                    {{ payment.get_method_display }}
+                                </span>
+                            </td>
+                            <td>{{ payment.payment_date|date:"M j, Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5">
+                                <i class="fas fa-folder-open fa-2x text-muted mb-3"></i>
+                                <p class="text-muted">No payment records found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visualization Section -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Payment Methods Distribution</h5>
+                    <div class="chart-container" style="height: 300px;">
+                        <canvas id="paymentMethodChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Payment Method Chart
+    const ctx = document.getElementById('paymentMethodChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Cash', 'Mobile Money', 'Bank Transfer'],
+            datasets: [{
+                data: [65, 25, 10],
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc']
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { position: 'right' }
+            }
+        }
+    });
+
+    // Make rows clickable
+    document.querySelectorAll('.clickable-row').forEach(row => {
+        row.addEventListener('click', () => {
+            window.location.href = row.dataset.href;
+        });
+    });
+});
+</script>
+
+<style>
+.clickable-row { cursor: pointer; transition: background-color 0.2s; }
+.clickable-row:hover { background-color: #f8f9fa; }
+.table-hover tbody tr:hover { background-color: rgba(78, 115, 223, 0.05); }
+.card-title { color: #2d3b4a; font-weight: 600; }
+</style>
+
+{% endblock %}
