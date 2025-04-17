@@ -1036,7 +1036,7 @@ class SMECapture(models.Model):
     )
 
     # Profile Picture/Image
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True, default='default_profile.jpg')
+    profile_picture = models.ImageField(upload_to='sme_pictures/', blank=True, null=True, default='default_profile.jpg')
 
     def save(self, *args, **kwargs):
         """

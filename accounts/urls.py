@@ -22,7 +22,10 @@ urlpatterns = [
     path('residential/<int:pk>/edit/', views.ResidentialUpdateView.as_view(), name='residential_update'),
     path('residential/<int:pk>/delete/', views.ResidentialDeleteView.as_view(), name='residential_delete'),
     path('residential-analytics/', views.residential_analytics, name='residential_analytics'),
+
+
     # Education Capture
+    path('educational_dashboard/',views.educational_dashboard, name='educational_dashboard'),
     path('create_education/', views.create_education, name='create_education'),  # Replace with the correct function
     path('education_list/', views.education_list, name='education_list'),
     path('education/<int:pk>/', views.education_detail, name='education_detail'),
@@ -46,6 +49,7 @@ urlpatterns = [
 
 
     # Health Capture
+    path('health_dashboard/',views.health_dashboard, name='health_dashboard'),
     path('health/', views.create_health, name='create_health'),
     path('health_list/', views.health_list, name='health_list'),
     path('health/<int:pk>/', views.health_detail, name='health_detail'),
@@ -54,6 +58,7 @@ urlpatterns = [
     path('health/success/', views.success_view, name='health_success'),
    
     # Government Capture
+    path('government_dashboard/',views.government_dashboard, name='government_dashboard'),
     path('government/', views.create_government, name='create_government'),
     path('government_list/', views.government_list, name='government_list'),
     path('government/<int:pk>/', views.government_detail, name='government_detail'),
@@ -62,6 +67,7 @@ urlpatterns = [
     path('government/success/', views.success_view, name='government_success'),
 
     # Business/SME Capture
+    path('sme_dashboard/',views.sme_dashboard, name='sme_dashboard'),
     path('sme/', views.create_sme, name='create_sme'),
     path('sme_list/', views.sme_list, name='sme_list'),
     path('sme/<int:pk>/', views.sme_detail, name='sme_detail'),

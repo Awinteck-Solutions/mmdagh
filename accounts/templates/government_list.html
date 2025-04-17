@@ -1,166 +1,289 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load crispy_forms_tags %}
-{% block title %} MMDA Government Institutional List 
+{% block title %} MMDA Government Institutional List {% endblock %}
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="mb-4 text-center">Government Institutional List</h1>
-
-    <!-- Create New Health Account Button -->
-    <div class="d-flex justify-content-between mb-4">
-        <a href="{% url 'create_government' %}" class="btn btn-success">Create New Health Institutional Account</a>
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-5 fw-bold text-primary mb-1">Government Institutions</h1>
+            <p class="text-muted">Managed institutional health accounts and facilities</p>
+        </div>
+        <a href="{% url 'create_government' %}" class="btn btn-primary rounded-pill px-4 py-2 shadow-sm hover-lift">
+            <i class="fas fa-plus-circle me-2"></i>New Institution
+        </a>
     </div>
 
-    <!-- Accounts Table -->
-    <div class="table-responsive">
-        <table class="table table-striped table-bordered table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Serial</th>
-                    <th>Insti Name</th>
-                    <th>Ownership</th>
-                    <th>Admin Name</th>
-                    <th>Admin Contact</th>
-                    <th>Facility Location</th>
-                    <th>GPS Address</th>
-                    <th>Coordinates</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for government in governments %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>{{ government.serial_number }}</td>
-                    <td>{{ government.institutional_name }}</td>
-                    <td>{{ government.nature_ownership }}</td>
-                    <td>{{ government.institutional_admin }}</td>
-                    <td>
-                        <a href="#" data-bs-toggle="modal" data-bs-target="#contactModal{{ forloop.counter }}">
-                            {{ government.institutional_admin_contact }}
-                        </a>
-                    </td>
-                    <td>{{ government.location }}</td>
-                    <td>
-                        <a href="https://www.ghanapostgps.com/map/?q={{ government.gps_address }}" target="_blank" rel="noopener noreferrer">{{ government.gps_address }}</a>
-                    </td>
-                    <td>
-                        <a href="https://www.google.com/maps?q={{ government.latitude }},{{ government.longitude }}" target="_blank" rel="noopener noreferrer">
-                            {{ government.latitude }}, {{ government.longitude }}
-                        </a>
-                    </td>
-                    <td>
-                        <button class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#modal{{ government.pk }}">View Details</button>
-                    </td>
-                </tr>
+    <!-- Main Card -->
+    <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <!-- Table Header -->
+                    <thead class="bg-gradient-primary text-white">
+                        <tr>
+                            <th scope="col" class="ps-4 py-3">#</th>
+                            <th scope="col" class="py-3">Serial</th>
+                            <th scope="col" class="py-3">Institution</th>
+                            <th scope="col" class="py-3">Ownership</th>
+                            <th scope="col" class="py-3">Admin</th>
+                            <th scope="col" class="py-3">Contact</th>
+                            <th scope="col" class="py-3">Location</th>
+                            <th scope="col" class="py-3">GPS</th>
+                            <th scope="col" class="text-center py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    
+                    <!-- Table Body -->
+                    <tbody>
+                        {% for government in governments %}
+                        <tr class="hover-shadow">
+                            <td class="ps-4 fw-medium text-primary">{{ forloop.counter }}</td>
+                            <td class="fw-semibold">{{ government.serial_number }}</td>
+                            
+                            <!-- Institution Column -->
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-shape icon-lg bg-light-primary rounded-3 me-3">
+                                        <i class="fas fa-hospital text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ government.institutional_name }}</h6>
+                                        <small class="text-muted">{{ government.category }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            
+                            <td>
+                                <span class="badge bg-soft-primary text-primary rounded-pill">
+                                    {{ government.nature_ownership }}
+                                </span>
+                            </td>
+                            <td class="fw-medium">{{ government.institutional_admin }}</td>
+                            
+                            <!-- Contact Column -->
+                            <td>
+                                <button class="btn btn-link text-decoration-none p-0 hover-lift" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#contactModal{{ forloop.counter }}">
+                                    <i class="fas fa-phone-alt me-1 text-primary"></i>
+                                    <span class="text-dark">{{ government.institutional_admin_contact }}</span>
+                                </button>
+                            </td>
+                            
+                            <!-- Location Column -->
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-map-pin me-2 text-danger"></i>
+                                    {{ government.location }}
+                                </div>
+                            </td>
+                            
+                            <!-- GPS Column -->
+                            <td>
+                                <a href="https://www.ghanapostgps.com/map/?q={{ government.gps_address }}" 
+                                   target="_blank" 
+                                   class="text-decoration-none hover-lift"
+                                   data-bs-toggle="tooltip" 
+                                   title="{{ government.gps_address }}">
+                                    <i class="fas fa-map-marker-alt me-1 text-success"></i>
+                                    {{ government.gps_address|truncatechars:12 }}
+                                </a>
+                            </td>
+                            
+                            <!-- Actions Column -->
+                            <td class="text-center">
+                                <button class="btn btn-soft-primary btn-sm rounded-pill px-3 hover-lift" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#modal{{ government.pk }}">
+                                    <i class="fas fa-eye me-1"></i>Details
+                                </button>
+                            </td>
+                        </tr>
 
-                <!-- Contact Modal -->
-                <div class="modal fade" id="contactModal{{ forloop.counter }}" tabindex="-1" aria-labelledby="contactModalLabel{{ forloop.counter }}" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="contactModalLabel{{ forloop.counter }}">Contact Options</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p>Select how you would like to contact <strong>{{ government.hospital_admin_contact }}</strong>:</p>
-                                <div class="d-flex justify-content-between">
-                                    <!-- WhatsApp Link -->
-                                    <a href="https://wa.me/{{ government.hospital_admin_contact|slice:':-1' }}" 
-                                       class="btn btn-success" target="_blank">
-                                       WhatsApp
-                                    </a>
-                                    <!-- SMS Link -->
-                                    <a href="sms:{{ government.hospital_admin_contact }}" 
-                                       class="btn btn-primary">
-                                       SMS
-                                    </a>
+                        <!-- Contact Modal -->
+                        <div class="modal fade" id="contactModal{{ forloop.counter }}" tabindex="-1">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content border-0 shadow-lg rounded-3">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-address-card me-2"></i>
+                                            Contact Administrator
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body py-4">
+                                        <div class="d-grid gap-2">
+                                            <a href="https://wa.me/{{ government.institutional_admin_contact }}" 
+                                               class="btn btn-success btn-lg rounded-pill py-3 hover-lift"
+                                               target="_blank">
+                                               <i class="fab fa-whatsapp fa-lg me-2"></i>
+                                               WhatsApp Chat
+                                            </a>
+                                            <a href="sms:{{ government.institutional_admin_contact }}" 
+                                               class="btn btn-primary btn-lg rounded-pill py-3 hover-lift">
+                                               <i class="fas fa-comment-sms fa-lg me-2"></i>
+                                               Send SMS
+                                            </a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Details Modal -->
-                <div class="modal fade" id="modal{{ government.pk }}" tabindex="-1" aria-labelledby="modalLabel{{ government.pk }}" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="modalLabel{{ government.pk }}">Detailed Health Information: {{ government.institutional_name }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <p><strong>Serial Number:</strong> {{ government.serial_number }}</p>
-                                <p><strong>Category:</strong> {{ government.category }}</p>
-                                <p><strong>Govt Inst. Name:</strong> {{ government.institutional_name }}</p>
-                                <p><strong>Govt Inst. Admin:</strong> {{ government.institutional_admin }}</p>
-                                <p><strong>Admin Contact:</strong> <a href="#" data-bs-toggle="modal" data-bs-target="#contactModal{{ forloop.counter }}">{{ government.institutional_admin_contact }}</a></p>
-                                <p><strong>Ghana Post GPS:</strong> <a href="https://www.ghanapostgps.com/map/?q={{ government.gps_address }}" target="_blank" rel="noopener noreferrer">{{ government.gps_address }}</a></p>
-                                <p><strong>Google Coordinates:</strong> <a href="https://www.google.com/maps?q={{ government.latitude }},{{ government.longitude }}" target="_blank" rel="noopener noreferrer">{{ government.latitude }}, {{ government.longitude }}</a></p>
-                                <p><strong>Location:</strong> {{ government.location }}</p>
-                                <p><strong>Area Zone:</strong> {{ government.area_zone }}</p>
-                                <p><strong>Emergency Contact:</strong> {{ government.emergency_name }}, {{ government.emergency_contact }}</p>
-                                <p><strong>Building Type:</strong> {{ government.building_type }}</p>
-                                <p><strong>Proximity to Public Infrastructure:</strong> {{ government.proximity_to_public_infrastructure }}</p>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <a href="{% url 'government_detail' government.id %}" class="btn btn-primary">More Details</a>
+                        <!-- Details Modal -->
+                        <div class="modal fade" id="modal{{ government.pk }}" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content border-0 shadow-lg rounded-3">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            {{ government.institutional_name }}
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <!-- Info Sections -->
+                                        <div class="row g-4">
+                                            <!-- Basic Info -->
+                                            <div class="col-md-6">
+                                                <div class="border p-3 rounded-3 bg-light">
+                                                    <h6 class="text-primary mb-3">
+                                                        <i class="fas fa-info me-2"></i>
+                                                        Basic Information
+                                                    </h6>
+                                                    <dl class="row">
+                                                        <dt class="col-sm-5">Serial Number:</dt>
+                                                        <dd class="col-sm-7">{{ government.serial_number }}</dd>
+                                                        
+                                                        <dt class="col-sm-5">Category:</dt>
+                                                        <dd class="col-sm-7">
+                                                            <span class="badge bg-soft-primary text-primary">
+                                                                {{ government.category }}
+                                                            </span>
+                                                        </dd>
+                                                        
+                                                        <dt class="col-sm-5">Admin Contact:</dt>
+                                                        <dd class="col-sm-7">
+                                                            <a href="#" class="text-decoration-none hover-lift" 
+                                                               data-bs-toggle="modal" 
+                                                               data-bs-target="#contactModal{{ forloop.counter }}">
+                                                               {{ government.institutional_admin_contact }}
+                                                            </a>
+                                                        </dd>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Location Info -->
+                                            <div class="col-md-6">
+                                                <div class="border p-3 rounded-3 bg-light">
+                                                    <h6 class="text-primary mb-3">
+                                                        <i class="fas fa-map-marked-alt me-2"></i>
+                                                        Location Details
+                                                    </h6>
+                                                    <dl class="row">
+                                                        <dt class="col-sm-5">GPS Address:</dt>
+                                                        <dd class="col-sm-7">
+                                                            <a href="https://www.ghanapostgps.com/map/?q={{ government.gps_address }}" 
+                                                               target="_blank" 
+                                                               class="text-decoration-none hover-lift">
+                                                               {{ government.gps_address }}
+                                                            </a>
+                                                        </dd>
+                                                        
+                                                        <dt class="col-sm-5">Coordinates:</dt>
+                                                        <dd class="col-sm-7">
+                                                            <a href="https://www.google.com/maps?q={{ government.latitude }},{{ government.longitude }}" 
+                                                               target="_blank" 
+                                                               class="text-decoration-none hover-lift">
+                                                               {{ government.latitude|floatformat:4 }}, 
+                                                               {{ government.longitude|floatformat:4 }}
+                                                            </a>
+                                                        </dd>
+                                                        
+                                                        <dt class="col-sm-5">Area Zone:</dt>
+                                                        <dd class="col-sm-7">{{ government.area_zone }}</dd>
+                                                    </dl>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Additional Info Cards -->
+                                        <div class="mt-4">
+                                            <h6 class="text-primary mb-3">
+                                                <i class="fas fa-clipboard-list me-2"></i>
+                                                Additional Information
+                                            </h6>
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <div class="border p-3 rounded-3 bg-light h-100">
+                                                        <small class="text-muted d-block mb-2">
+                                                            <i class="fas fa-exclamation-triangle me-1"></i>
+                                                            Emergency Contact
+                                                        </small>
+                                                        <div class="fw-medium">
+                                                            {{ government.emergency_name }}<br>
+                                                            {{ government.emergency_contact }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="border p-3 rounded-3 bg-light h-100">
+                                                        <small class="text-muted d-block mb-2">
+                                                            <i class="fas fa-building me-1"></i>
+                                                            Building Type
+                                                        </small>
+                                                        <div class="fw-medium">
+                                                            {{ government.building_type }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <div class="border p-3 rounded-3 bg-light h-100">
+                                                        <small class="text-muted d-block mb-2">
+                                                            <i class="fas fa-road me-1"></i>
+                                                            Public Infrastructure
+                                                        </small>
+                                                        <div class="fw-medium">
+                                                            {{ government.proximity_to_public_infrastructure }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer border-top">
+                                        <a href="{% url 'government_detail' government.id %}" 
+                                           class="btn btn-primary rounded-pill px-4 hover-lift">
+                                           <i class="fas fa-external-link-alt me-2"></i>Full Details
+                                        </a>
+                                        <button type="button" 
+                                                class="btn btn-secondary rounded-pill px-4 hover-lift" 
+                                                data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                {% empty %}
-                <tr>
-                    <td colspan="10" class="text-center">No government institutional captures found.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center py-5">
+                                <div class="text-muted py-5">
+                                    <div class="mb-4">
+                                        <i class="fas fa-database fa-3x opacity-50"></i>
+                                    </div>
+                                    <h4 class="mb-3">No Institutions Found</h4>
+                                    <p class="mb-0">Start by creating a new institutional account</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
-</div>
-{% endblock %}
-
-                    <th>Neighbor</th>
-                    <th>Ownership_Status</th>
-                    <th>Network</th>
-                    <th>Date Created</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for government in governments %}
-                    <tr>
-                        <td>{{ forloop.counter }}</td>
-                        <td>{{ government.serial_number }}</td>
-                        <td>{{ government.get_category_display }}</td>
-                        <td>{{ government.gps_address }}</td>
-                        <td>{{ government.neighbor_emergency_name }} {{ neighbor_emergency_contact }}</td>
-                        <td>{{ government.Ownership_Status }}</td>
-                        <td>{{ government.network_connectivity }}</td>
-                        <td>{{ government.date_created }}</td>
-                        <td>
-                            {% if government.pk %}
-                                <a href="{% url 'government_detail' government.pk %}" class="btn btn-info btn-sm">View</a>
-                                <a href="{% url 'government_update' government.pk %}" class="btn btn-primary btn-sm">Edit</a>
-                                <a href="{% url 'government_delete' government.pk %}" class="btn btn-danger btn-sm">Delete</a>
-                            {% else %}
-                                <span class="text-danger">No valid ID</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center">No records found.</td>
-                    </tr>
-                {% endfor %}
-
-            </tbody>
-        </table>
-    </div>
-
 </div>
 {% endblock %}

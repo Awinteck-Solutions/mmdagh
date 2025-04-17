@@ -569,6 +569,120 @@ class AccountUpdateView(PermissionRequiredMixin, UpdateView):
 def education_list(request):
     return list_generic(request, EducationCapture, 'education_list.html', 'educations')
 
+
+@login_required
+def educational_dashboard(request):
+    user = request.user
+
+    if not user.is_superuser:
+        user_assignment = UserAssignment.objects.filter(user=user).first()
+        if not user_assignment:
+            return HttpResponseForbidden("You do not have an assigned region.")
+        educations= EducationCapture.objects.filter(region=user_assignment.region)
+    else:
+        educations= EducationCapture.objects.all()
+
+    total_entries = educations.count()
+
+    # Entries in the last 7 days
+    seven_days_ago = timezone.now() - timedelta(days=7)
+    recent_entries_count = educations.filter(date_created__gte=seven_days_ago).count()
+
+    # Unique category count
+    category_count = educations.values('category').distinct().count()
+
+    # Data trend over the last 7 days
+    today = timezone.now().date()
+    trend_labels = []
+    trend_data = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        count = educations.filter(date_created__date=day).count()
+        trend_labels.append(day.strftime('%a'))  # e.g., Mon, Tue
+        trend_data.append(count)
+
+    # Recent activity data
+    recent_created = educations.order_by('-date_created').first()
+    recent_updated = educations.order_by('-date_updated').first()
+    recent_login = user.last_login
+    recent_logout = Session.objects.filter(expire_date__lt=timezone.now()).order_by('-expire_date').first()
+
+    return render(
+        request,
+        'accounts/educational_dashboard.html',
+        {
+            'educations': educations,
+            'total_entries': total_entries,
+            'recent_entries_count': recent_entries_count,
+            'category_count': category_count,
+            'trend_labels': json.dumps(trend_labels),
+            'trend_data': json.dumps(trend_data),
+            'recent_created': recent_created,
+            'recent_updated': recent_updated,
+            'recent_login': recent_login,
+            'recent_logout': recent_logout,
+        }
+    )
+
+
+@login_required
+def health_dashboard(request):
+    user = request.user
+
+    if not user.is_superuser:
+        user_assignment = UserAssignment.objects.filter(user=user).first()
+        if not user_assignment:
+            return HttpResponseForbidden("You do not have an assigned region.")
+        healths= HealthCapture.objects.filter(region=user_assignment.region)
+    else:
+        healths= HealthCapture.objects.all()
+
+    total_entries = healths.count()
+
+    # Entries in the last 7 days
+    seven_days_ago = timezone.now() - timedelta(days=7)
+    recent_entries_count = healths.filter(date_created__gte=seven_days_ago).count()
+
+    # Unique category count
+    category_count = healths.values('category').distinct().count()
+
+    # Data trend over the last 7 days
+    today = timezone.now().date()
+    trend_labels = []
+    trend_data = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        count = healths.filter(date_created__date=day).count()
+        trend_labels.append(day.strftime('%a'))  # e.g., Mon, Tue
+        trend_data.append(count)
+
+    # Recent activity data
+    recent_created = healths.order_by('-date_created').first()
+    recent_updated = healths.order_by('-date_updated').first()
+    recent_login = user.last_login
+    recent_logout = Session.objects.filter(expire_date__lt=timezone.now()).order_by('-expire_date').first()
+
+    return render(
+        request,
+        'accounts/health_dashboard.html',
+        {
+            'healths': healths,
+            'total_entries': total_entries,
+            'recent_entries_count': recent_entries_count,
+            'category_count': category_count,
+            'trend_labels': json.dumps(trend_labels),
+            'trend_data': json.dumps(trend_data),
+            'recent_created': recent_created,
+            'recent_updated': recent_updated,
+            'recent_login': recent_login,
+            'recent_logout': recent_logout,
+        }
+    )
+
+
+
+
+
 class EducationUpdateView(PermissionRequiredMixin, UpdateView):
     permission_required = 'app.change_educationcapture'
     model = EducationCapture
@@ -684,6 +798,62 @@ def success_view(request):
 
 
 #Government accounts RECORDS
+
+@login_required
+def government_dashboard(request):
+    user = request.user
+
+    if not user.is_superuser:
+        user_assignment = UserAssignment.objects.filter(user=user).first()
+        if not user_assignment:
+            return HttpResponseForbidden("You do not have an assigned region.")
+        governments= GovernmentCapture.objects.filter(region=user_assignment.region)
+    else:
+        governments= GovernmentCapture.objects.all()
+
+    total_entries = governments.count()
+
+    # Entries in the last 7 days
+    seven_days_ago = timezone.now() - timedelta(days=7)
+    recent_entries_count = governments.filter(date_created__gte=seven_days_ago).count()
+
+    # Unique category count
+    category_count = governments.values('category').distinct().count()
+
+    # Data trend over the last 7 days
+    today = timezone.now().date()
+    trend_labels = []
+    trend_data = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        count = governments.filter(date_created__date=day).count()
+        trend_labels.append(day.strftime('%a'))  # e.g., Mon, Tue
+        trend_data.append(count)
+
+    # Recent activity data
+    recent_created = governments.order_by('-date_created').first()
+    recent_updated = governments.order_by('-date_updated').first()
+    recent_login = user.last_login
+    recent_logout = Session.objects.filter(expire_date__lt=timezone.now()).order_by('-expire_date').first()
+
+    return render(
+        request,
+        'accounts/government_dashboard.html',
+        {
+            'governments': governments,
+            'total_entries': total_entries,
+            'recent_entries_count': recent_entries_count,
+            'category_count': category_count,
+            'trend_labels': json.dumps(trend_labels),
+            'trend_data': json.dumps(trend_data),
+            'recent_created': recent_created,
+            'recent_updated': recent_updated,
+            'recent_login': recent_login,
+            'recent_logout': recent_logout,
+        }
+    )
+
+
 @login_required
 def create_government(request):
     return create_generic(request, GovernmentCaptureForm, 'create_government.html', 'government_list')
@@ -730,6 +900,64 @@ def success_view(request):
 
 
 #SME accounts RECORDS
+@login_required
+def sme_dashboard(request):
+    user = request.user
+
+    if not user.is_superuser:
+        user_assignment = UserAssignment.objects.filter(user=user).first()
+        if not user_assignment:
+            return HttpResponseForbidden("You do not have an assigned region.")
+        smes= SMECapture.objects.filter(region=user_assignment.region)
+    else:
+        smes= SMECapture.objects.all()
+
+    total_entries = smes.count()
+
+    # Entries in the last 7 days
+    seven_days_ago = timezone.now() - timedelta(days=7)
+    recent_entries_count = smes.filter(date_created__gte=seven_days_ago).count()
+
+    # Unique category count
+    category_count = smes.values('category').distinct().count()
+
+    # Data trend over the last 7 days
+    today = timezone.now().date()
+    trend_labels = []
+    trend_data = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        count = smes.filter(date_created__date=day).count()
+        trend_labels.append(day.strftime('%a'))  # e.g., Mon, Tue
+        trend_data.append(count)
+
+    # Recent activity data
+    recent_created = smes.order_by('-date_created').first()
+    recent_updated = smes.order_by('-date_updated').first()
+    recent_login = user.last_login
+    recent_logout = Session.objects.filter(expire_date__lt=timezone.now()).order_by('-expire_date').first()
+
+    return render(
+        request,
+        'accounts/sme_dashboard.html',
+        {
+            'smes': smes,
+            'total_entries': total_entries,
+            'recent_entries_count': recent_entries_count,
+            'category_count': category_count,
+            'trend_labels': json.dumps(trend_labels),
+            'trend_data': json.dumps(trend_data),
+            'recent_created': recent_created,
+            'recent_updated': recent_updated,
+            'recent_login': recent_login,
+            'recent_logout': recent_logout,
+        }
+    )
+
+
+
+
+
 @login_required
 def create_sme(request):
     return create_generic(request, SMECaptureForm, 'create_sme.html', 'sme_list')

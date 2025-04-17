@@ -1,110 +1,220 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Business/SME's Capture Details{% endblock %}
+{% block title %}SME/Business Capture Details{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mb-4">Business/SME's Details: {{ sme.serial_number }}</h1>
-    
-    <!-- Business/SME's  Institution Details Table -->
-    <div>
-
-        <h2 class="mb-4">GENERAL DATA</h2>
-        <div align="left">
-        <p><strong>Serial Number:</strong> {{ sme.serial_number }}</p>
-        <p><strong>Category:</strong> {{ sme.category }}</p>
-        <p><strong>Business/SME Name:</strong> {{ sme.institutional_name }}</p>
-        <p><strong>Type of service:</strong> {{ sme.service_type }}</p>
-        <p><strong>Registered:</strong> {{ sme.sme_registered }}</p>
-        <p><strong>Institutional REG.No:</strong> {{ sme.Registration_no }}</p>
-        <p><strong>Nature Ownership:</strong> {{ sme.nature_ownership }}</p>
-        <p><strong>Institutional Admin:</strong> {{ sme.sme_admin }}</p>
-        <p><strong>Institutional Admin GH Card:</strong> {{ sme.sme_admin_ghana_card }}</p>
-        <p><strong>Admin Contact:</strong> {{ sme.sme_admin_contact }}</p>
-        <p><strong>Area Zone:</strong> {{ sme.area_zone }}</p>
-        <p><strong>Street Name:</strong> {{ sme.street_name }}</p>
-        <p><strong>Ghana Post GPS:</strong> <a href="https://www.ghanapostgps.com/map/?q={{ sme.gps_address }}" target="_blank" rel="noopener noreferrer">{{ sme.gps_address }}</a></p>
-        <p><strong>Google Coordinates:</strong> <a href="https://www.google.com/maps?q={{ sme.latitude }},{{sme.longitude }}" target="_blank" rel="noopener noreferrer">{{ sme.latitude }}, {{ sme.longitude }}</a></p>
-        <p><strong>Institution's Location:</strong> {{ sme.location }}</p>
-        <p><strong>Emergency contact:</strong> {{ sme.emergency_name }},{{ sme.emergency_contact }}</p>
-
-        <h2 class="mb-4">BUILDING INFORMATION</h2>
-        <div align="left">
-        <p><strong>Building Type:</strong> {{ sme.building_type }}</p>
-        <p><strong>No.of Floors :</strong> {{ sme.number_of_floors  }}</p>
-        <p><strong>Average Daily Admission:</strong> {{ sme.average_daily_admin }}</p>
-        <p><strong>Toilet Facility :</strong> {{ sme.toilet_facility }}</p>
-        <p><strong>Parking Spaces:</strong> {{ sme.parking_spaces }}</p>
-        <p><strong>Fenced :</strong> {{ sme.fenced  }}</p>
-        <p><strong>Fencing Type:</strong> {{ sme.fencing_type}}</p>
-        <p><strong>Building Condition:</strong> {{ sme.building_condition }}</p>
-        <p><strong>Security Features:</strong> {{ sme.security_features }}</p>
-        <p><strong>Construction Material:</strong> {{ sme.construction_material }}</p>
-        <p><strong>Type of Roof:</strong> {{ sme.type_of_roof }}</p>
-        <p><strong>Proximity to Public Infrastructure:</strong> {{ sme.proximity_to_public_infrastructure }}</p>
- 
-        <h2 class="mb-4">FACILITY RECORD</h2>
-        <div align="left">
-        <p><strong>Water Supply:</strong> {{ sme.water_supply }}</p>
-        <p><strong>Electricity connection :</strong> {{ sme.electricity_connection }}</p>
-        <p><strong>Has Backup generator:</strong> {{ sme.has_backup_generator}}</p>
-        <p><strong>Sewage system:</strong> {{ sme.sewage_system }}</p>
-        <p><strong>Waste Disposal Method:</strong> {{ sme.waste_disposal_method }}</p>
-        <p><strong>Network connectivity:</strong> {{ sme.network_connectivity}}</p>
-        <p><strong>Internet connectivity:</strong> {{ sme.internet_connectivity}}</p>
-        <p><strong>Ambulance service Avialablity:</strong> {{ sme.ambulance}}</p>
-        <p><strong>Road network:</strong> {{ sme.road_network }}</p>
-        <p><strong>Road condition:</strong> {{ sme.road_condition }}</p>
-
-
-        <h2 class="mb-4">RISK & CRIMINAL ACTIVITIES AROUND THE AREA</h2>
-        <div align="left">
-        <p><strong>Flood Risk Area:</strong> {{ sme.flood_risk_area }}</p>
-        <p><strong>Criminal Activities:</strong> {{ sme.criminal_activities}}</p>
-
-
-        <h2 class="mb-4">DATES</h2>
-        <div align="left">
-        <p><strong>Date Created:</strong> {{ sme.date_created }}</p>
-        <p><strong>Date Updated:</strong> {{ sme.date_updated }}</p>
-
-
-        <!-- Add more fields as needed -->
+<div class="container py-5">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-5 fw-bold text-primary">{{ sme.institutional_name }}</h1>
+            <p class="lead text-muted">Serial Number: {{ sme.serial_number }}</p>
+        </div>
+        <div class="d-grid gap-2 d-md-flex">
+            <a href="{% url 'sme_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="fas fa-arrow-left me-2"></i>Back
+            </a>
+            <a href="{% url 'sme_update' sme.pk %}" class="btn btn-warning rounded-pill px-4">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+            <a href="{% url 'sme_delete' sme.pk %}" class="btn btn-danger rounded-pill px-4">
+                <i class="fas fa-trash me-2"></i>Delete
+            </a>
+        </div>
     </div>
 
-        <tr>
-            <th>Profile Picture:</th>
-            <td>
-                {% if account.profile_picture %}
-                    <img src="{{ account.profile_picture.url }}" alt="Profile Picture" style="width:150px; height:150px;">
+    <!-- Profile Picture Card -->
+    <div class="card shadow-sm mb-5 border-0 rounded-4">
+        <div class="card-body text-center">
+            <div class="position-relative d-inline-block">
+                {% if sme.profile_picture %}
+                <img src="{{ sme.profile_picture.url }}" 
+                     class="img-fluid rounded-circle shadow-lg" 
+                     alt="Profile Picture"
+                     style="width: 200px; height: 200px; object-fit: cover">
                 {% else %}
-                    No Picture Uploaded
+                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center" 
+                     style="width: 200px; height: 200px">
+                    <i class="fas fa-building fa-3x text-muted"></i>
+                </div>
                 {% endif %}
-            </td>
-        </tr>
+            </div>
+        </div>
+    </div>
 
-    <!-- Action Links -->
-    <div class="mt-4">
-        <a href="{% url 'sme_list' %}" class="btn btn-secondary">Back to List</a>
-        <a href="{% url 'sme_update' sme.pk %}" class="btn btn-warning">Edit</a>
-        <a href="{% url 'sme_delete' sme.pk %}" class="btn btn-danger">Delete</a>
+    <!-- Main Content Sections -->
+    <div class="row g-4">
+        <!-- General Data Card -->
+        <div class="col-12">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-primary text-white rounded-top-4">
+                    <h3 class="mb-0"><i class="fas fa-database me-2"></i>General Data</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-5 text-muted">Category</dt>
+                                <dd class="col-sm-7">{{ sme.category }}</dd>
+                                
+                                <dt class="col-sm-5 text-muted">Service Type</dt>
+                                <dd class="col-sm-7">{{ sme.service_type }}</dd>
+                                
+                                <dt class="col-sm-5 text-muted">Registration No</dt>
+                                <dd class="col-sm-7">{{ sme.registration_no }}</dd>
+                                
+                                <dt class="col-sm-5 text-muted">Ownership</dt>
+                                <dd class="col-sm-7">{{ sme.nature_ownership }}</dd>
+                                
+                                <dt class="col-sm-5 text-muted">Admin Name</dt>
+                                <dd class="col-sm-7">{{ sme.sme_admin }}</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-5 text-muted">Ghana Card</dt>
+                                <dd class="col-sm-7">{{ sme.sme_admin_ghana_card }}</dd>
+                                
+                                <dt class="col-sm-5 text-muted">Admin Contact</dt>
+                                <dd class="col-sm-7">{{ sme.sme_admin_contact }}</dd>
+                                <dt class="col-sm-5 text-muted">Emergency contact</dt>
+                                <dd class="col-sm-7">{{ sme.emergency_name }},{{ sme.emergency_contact }}</dd>
+                                <dt class="col-sm-5 text-muted">Location</dt>
+                                <dd class="col-sm-7">{{ sme.location }}</dd>
+                                <dt class="col-sm-5 text-muted">Street Name</dt>
+                                <dd class="col-sm-7">{{ sme.street_name }}</dd>
+                                <dt class="col-sm-5 text-muted">Area Zone</dt>
+                                <dd class="col-sm-7">{{ sme.sme.area_zone }}</dd>
+                                
+                                <dt class="col-sm-5 text-muted">GPS</dt>
+                                <dd class="col-sm-7">
+                                    <a href="https://www.ghanapostgps.com/map/?q={{ sme.gps_address }}" 
+                                       target="_blank" 
+                                       class="text-decoration-none">
+                                        {{ sme.gps_address }}
+                                    </a>
+                                </dd>
+                                <dt class="col-sm-5 text-muted">Coordinate</dt>
+                                <dd class="col-sm-7">
+                                    <a href="https://www.google.com/maps?q={{ sme.latitude }},{{sme.longitude }}" target="_blank" rel="noopener noreferrer">{{ sme.latitude }}, {{ sme.longitude }}
+                                    </a>
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Building Information Card -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-building me-2"></i>Building Information</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-6 text-muted">Building Type</dt>
+                        <dd class="col-sm-6">{{ sme.building_type }}</dd>
+                        
+                        <dt class="col-sm-6 text-muted">No. of Floors</dt>
+                        <dd class="col-sm-6">{{ sme.number_of_floors }}</dd>
+                        
+                        <dt class="col-sm-6 text-muted">Daily Admission</dt>
+                        <dd class="col-sm-6">{{ sme.average_daily_admin }}</dd>
+                        
+                        <dt class="col-sm-6 text-muted">Parking Spaces</dt>
+                        <dd class="col-sm-6">{{ sme.parking_spaces }}</dd>
+                        <dt class="col-sm-6 text-muted">Fence?</dt>
+                        <dd class="col-sm-6">{{ sme.fenced }}</dd>                     
+                        <dt class="col-sm-6 text-muted">Fencing</dt>
+                        <dd class="col-sm-6">{{ sme.fencing_type }}</dd>
+                        <dt class="col-sm-6 text-muted">Building Condition</dt>
+                        <dd class="col-sm-6">{{ sme.building_condition}}</dd>
+                        <dt class="col-sm-6 text-muted">Construction Material</dt>
+                        <dd class="col-sm-6">{{ sme.construction_material }}</dd>
+                        <dt class="col-sm-6 text-muted">Fencing</dt>
+                        <dd class="col-sm-6">{{ sme.fencing_type }}</dd>
+                        <dt class="col-sm-6 text-muted">Construction Material</dt>
+                        <dd class="col-sm-6">{{ sme.construction_material }}</dd>
+                        <dt class="col-sm-6 text-muted">Fencing</dt>
+                        <dd class="col-sm-6">{{ sme.fencing_type }}</dd>
+                        <dt class="col-sm-6 text-muted"> Roofing Type</dt>
+                        <dd class="col-sm-6">{{ sme.construction_material }}</dd>
+                        <dt class="col-sm-6 text-muted">Proximity to Public Infrastructure</dt>
+                        <dd class="col-sm-6">{{ sme.proximity_to_public_infrastructure }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Facility Record Card -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Facility Record</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-6 text-muted">Water Supply</dt>
+                        <dd class="col-sm-6">{{ sme.water_supply }}</dd>
+                        
+                        <dt class="col-sm-6 text-muted">Electricity</dt>
+                        <dd class="col-sm-6">{{ sme.electricity_connection }}</dd>
+                        <dt class="col-sm-6 text-muted">Has Backup generator</dt>
+                        <dd class="col-sm-6">{{ sme.has_backup_generator }}</dd>
+                        <dt class="col-sm-6 text-muted">Waste Disposal Method</dt>
+                        <dd class="col-sm-6">{{ sme.waste_disposal_method}}</dd>
+                        <dt class="col-sm-6 text-muted">Sewage System</dt>
+                        <dd class="col-sm-6">{{ sme.sewage_system }}</dd>
+                        
+                        <dt class="col-sm-6 text-muted">Internet</dt>
+                        <dd class="col-sm-6">{{ sme.internet_connectivity }}</dd>
+
+                        <dt class="col-sm-6 text-muted">Road Network</dt>
+                        <dd class="col-sm-6">{{ sme.road_network }}</dd>                        
+                        <dt class="col-sm-6 text-muted">Road Condition</dt>
+                        <dd class="col-sm-6">{{ sme.road_condition }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Sections (Risk, Dates) -->
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i>Risk Assessment</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-6 text-muted">Flood Risk</dt>
+                        <dd class="col-sm-6">{{ sme.flood_risk_area }}</dd>
+                        
+                        <dt class="col-sm-6 text-muted">Criminal Activities</dt>
+                        <dd class="col-sm-6">{{ sme.criminal_activities }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 rounded-4 h-100">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Dates</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-6 text-muted">Created</dt>
+                        <dd class="col-sm-6">{{ sme.date_created }}</dd>
+                        
+                        <dt class="col-sm-6 text-muted">Updated</dt>
+                        <dd class="col-sm-6">{{ sme.date_updated }}</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
-
-
-
-
-    # Security
-
-
-
-
-
-    # Security
-    criminal_activities = models.JSONField(default=list)  # Replace multiple fields with a single JSONField
-    network_connectivity = models.CharField(max_length=50, choices=NETWORK_CHOICES)
-        # Road Network Section
-    road_network = models.BooleanField(default=False)  # If true, road_condition should be specified
-    road_condition = models.CharField(
