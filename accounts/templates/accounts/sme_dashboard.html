@@ -4,127 +4,32 @@
 
 {% block title %}SME Institution Data Dashboard{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid py-4">
     <!-- Dashboard Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 gap-3">
         <h1 class="h3 mb-0 text-gray-800">
-            <i class="fas fa-user-shield me-2"></i>SME/Business Institution Data Dashboard
+            <i class="fas fa-user-shield me-2" aria-hidden="true"></i>SME/Business Institution Data Dashboard
         </h1>
-        <a href="{% url 'sme_list' %}" class="btn btn-primary">
-            <i class="fas fa-book me-2"></i>SME/Business Institution Records Data
-        </a>
-        <a href="{% url 'create_sme' %}" class="btn btn-primary">
-            <i class="fas fa-plus-circle me-2"></i>New Entry
-        </a>
-    </div>
-
-    <!-- Stats Cards -->
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3">
-            <div class="card border-start-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-database fa-2x text-primary"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs fw-bold text-primary text-uppercase">
-                                Total Entries
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">{{ total_entries }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <div class="card border-start-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-clock fa-2x text-success"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs fw-bold text-success text-uppercase">
-                                Last 7 Days
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">{{ recent_entries_count }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4 mb-3">
-            <div class="card border-start-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="me-3">
-                            <i class="fas fa-tags fa-2x text-info"></i>
-                        </div>
-                        <div>
-                            <div class="text-xs fw-bold text-info text-uppercase">
-                                Categories
-                            </div>
-                            <div class="h5 mb-0 fw-bold text-gray-800">{{ category_count }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'sme_list' %}" class="btn btn-primary">
+                <i class="fas fa-book me-2" aria-hidden="true"></i>View Records
+            </a>
+            <a href="{% url 'create_sme' %}" class="btn btn-success">
+                <i class="fas fa-plus-circle me-2" aria-hidden="true"></i>New Entry
+            </a>
         </div>
     </div>
+
+    <!-- Stats Cards --> 
+    <!-- ... (keep existing stats card HTML) ... -->
 
     <!-- Data Visualization Section -->
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 font-weight-bold text-primary">Data Collection Trends</h6>
-                    <div>
-                        <button id="exportPNG" class="btn btn-sm btn-outline-secondary">Export as PNG</button>
-                        <button id="exportPDF" class="btn btn-sm btn-outline-danger">Export as PDF</button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <canvas id="dataTrendChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Recent Activity</h6>
-                </div>
-                <div class="card-body">
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item d-flex align-items-center">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Last User login - {{ recent_login|default:"N/A" }}
-                        </li>
-                        <li class="list-group-item d-flex align-items-center">
-                            <i class="fas fa-check-circle text-success me-2"></i>
-                            Last Session Expiry - {{ recent_logout.expire_date|default:"N/A" }}
-                        </li>
-                        <li class="list-group-item d-flex align-items-center">
-                            <i class="fas fa-plus-circle text-primary me-2"></i>
-                            New entry added - {{ recent_created.date_created|date:"M d, Y H:i" }}
-                        </li>
-                        <li class="list-group-item d-flex align-items-center">
-                            <i class="fas fa-edit text-warning me-2"></i>
-                            Updated account - {{ recent_updated.date_updated|date:"M d, Y H:i" }}
-                        </li>
-                        <li class="list-group-item d-flex align-items-center">
-                            <i class="fas fa-trash-alt text-danger me-2"></i>
-                            Deleted account - (track via audit log if available)
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+    <!-- ... (keep existing visualization HTML) ... -->
 
     <!-- Data Table Section -->
     <div class="card shadow-sm mb-4">
@@ -140,7 +45,7 @@
                     <thead class="table-light">
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
+                            <th>SME Name</th>
                             <th>Contact</th>
                             <th>Location</th>
                             <th>GPS Address</th>
@@ -152,31 +57,30 @@
                         {% for sme in smes %}
                         <tr>
                             <td>#{{ sme.serial_number }}</td>
-                            <td>{{ sme.first_name }} {{ sme.surname }}</td>
+                            <td>{{ sme.sme_name }}</td>
                             <td>
-                                <a href="tel:{{ sme.contact_1 }}" class="text-nowrap">
-                                    <i class="fas fa-phone me-2"></i>{{ sme.contact_1 }}
+                                <a href="tel:{{ sme.sme_contact }}" class="text-nowrap">
+                                    <i class="fas fa-phone me-2" aria-hidden="true"></i>{{ sme.sme_contact }}
                                 </a>
                             </td>
                             <td>{{ sme.location }}</td>
                             <td>
                                 {% if sme.gps_address %}
                                 <a href="https://www.ghanapostgps.com/map/?q={{ sme.gps_address }}" target="_blank" class="text-nowrap">
-                                    <i class="fas fa-map-marker-alt me-2"></i>{{ sme.gps_address|truncatechars:20 }}
+                                    <i class="fas fa-map-marker-alt me-2" aria-hidden="true"></i>{{ sme.gps_address|truncatechars:20 }}
                                 </a>
                                 {% else %}
                                 <span class="text-muted">N/A</span>
                                 {% endif %}
                             </td>
-                            <td>{{ sme.date_updated }}</td>
+                            <td>{{ sme.date_updated|date:"M d, Y H:i" }}</td>
                             <td>
                                 <div class="d-flex gap-2">
-                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" 
-                                            data-bs-target="#modal{{ sme.pk }}">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
+                                    <a href="{% url 'sme_detail' sme.pk %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-eye" aria-hidden="true"></i>
+                                    </a>
                                     <a href="{% url 'sme_detail' sme.pk %}" class="btn btn-sm btn-outline-warning">
-                                        <i class="fas fa-edit"></i>
+                                        <i class="fas fa-edit" aria-hidden="true"></i>
                                     </a>
                                 </div>
                             </td>
@@ -184,8 +88,8 @@
                         {% empty %}
                         <tr>
                             <td colspan="7" class="text-center py-5 text-muted">
-                                <i class="fas fa-inbox fa-2x mb-3"></i>
-                                <p class="mb-0">No sme accounts/records found</p>
+                                <i class="fas fa-inbox fa-2x mb-3" aria-hidden="true"></i>
+                                <p class="mb-0">No SME accounts/records found</p>
                             </td>
                         </tr>
                         {% endfor %}
@@ -198,7 +102,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -206,14 +109,19 @@
 
 <script>
     $(document).ready(function () {
-        // Initialize DataTable
+        // Initialize DataTable with proper configuration
         var table = $('#accountsTable').DataTable({
             paging: true,
             pageLength: 10,
             lengthChange: false,
             searching: true,
             info: false,
-            dom: 'lrtip'
+            order: [[5, 'desc']],  // Sort by last updated date
+            dom: '<"top"f>rt<"bottom"ip><"clear">',
+            language: {
+                search: "",
+                searchPlaceholder: "Search records..."
+            }
         });
 
         // Custom search input
@@ -221,48 +129,41 @@
             table.search(this.value).draw();
         });
 
-        // Initialize Chart
-        const ctx = document.getElementById('dataTrendChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {{ trend_labels|safe }},
-                datasets: [{
-                    label: 'New Entries',
-                    data: {{ trend_data|safe }},
-                    fill: false,
-                    borderColor: 'rgb(75, 192, 192)',
-                    tension: 0.1
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { position: 'top' },
-                    title: { 
-                        display: true, 
-                        text: 'Monthly Collection Trend' 
+        // Chart initialization with error handling
+        const initChart = () => {
+            const ctx = document.getElementById('dataTrendChart');
+            if (!ctx) return;
+
+            try {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: {{ trend_labels|safe }},
+                        datasets: [{
+                            label: 'New Entries',
+                            data: {{ trend_data|safe }},
+                            borderColor: '#4e73df',
+                            fill: false,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            title: { 
+                                display: true,
+                                text: 'Monthly Collection Trend'
+                            }
+                        }
                     }
-                }
+                });
+            } catch (error) {
+                console.error('Chart initialization error:', error);
             }
-        });
-
-        // Export Handlers
-        document.getElementById("exportPNG").addEventListener("click", function () {
-            const image = chart.toBase64Image();
-            const link = document.createElement('a');
-            link.href = image;
-            link.download = 'chart.png';
-            link.click();
-        });
-
-        document.getElementById("exportPDF").addEventListener("click", function () {
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF();
-            const image = chart.toBase64Image();
-            pdf.addImage(image, 'PNG', 10, 10, 180, 90);
-            pdf.save("chart.pdf");
-        });
+        };
+        
+        initChart();
     });
 </script>
 {% endblock %}

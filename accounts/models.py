@@ -3,10 +3,11 @@ from django.utils import timezone
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from phonenumber_field.modelfields import PhoneNumberField  #
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
 from django.db import transaction
 from django.contrib.auth.models import User
 from simple_history.models import HistoricalRecords
+
 
 CATEGORY_CHOICES = [
     ('IND', 'Individual'),
@@ -52,17 +53,6 @@ REGION_CHOICES = [
     ('North East', 'North East'),
 ]
 
-#MMDA_CHOICES = [
-    #('Ga West Municipal', 'Ga West Municipal'),
-    #('Tema West', 'Tema West'),
-    #('Tema East', 'Tema East'),
-    #('Tema Central', 'Tema Central'),
-    #('Kumasi Metro', 'Kumasi Metro'),
-    #('Trobo Municipal', 'Trobo Municipal'),
-    #('Krowo', 'Krowo'),
-    #('La Dadekotopon', 'La Dadekotopon'),
-    #('Ashaiman', 'Ashaiman'),
-#]
 
 LANGUAGE_CHOICES = [
     ('English', 'English'),
@@ -405,7 +395,7 @@ class DataCapture(models.Model):
 
 
 
-#User = get_user_model()
+#Educational Model
 
 class EducationCapture(models.Model):
     serial_number = models.CharField(max_length=20, unique=True, editable=False)
@@ -492,7 +482,8 @@ class EducationCapture(models.Model):
     road_condition = models.CharField(max_length=50, choices=ROAD_CONDITION_CHOICES, blank=True, null=True)
 
 
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True, default='default_profile.jpg')
+    profile_picture = models.ImageField(upload_to='school_pictures/', blank=True, null=True, default='default_profile.jpg')
+
 
     def save(self, *args, **kwargs):
         if not self.serial_number:
@@ -514,12 +505,7 @@ class EducationCapture(models.Model):
 
 
 
-
-
-from django.db import models
-from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
-
-
+#Residential Model
 class ResidentialCapture(models.Model):
     serial_number = models.CharField(max_length=20, unique=True, editable=False)
     category = models.CharField(max_length=10, default="RES", editable=False)
@@ -619,7 +605,7 @@ class ResidentialCapture(models.Model):
 
 
 
- #Health Captures
+ #Health Model
 class HealthCapture(models.Model):
     # Account Details
     serial_number = models.CharField(max_length=20, unique=True, editable=False)
@@ -780,7 +766,7 @@ class HealthCapture(models.Model):
         ordering = ['-date_created', 'hospital_name']
 
 
- #Government Captures
+ #Government Model
 class GovernmentCapture(models.Model):
     # Account Details
     serial_number = models.CharField(max_length=20, unique=True, editable=False)
@@ -906,7 +892,7 @@ class GovernmentCapture(models.Model):
     )
 
     # Profile Picture/Image
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='government_pictures/', blank=True, null=True, default='default_profile.jpg')
 
     def save(self, *args, **kwargs):
         """
@@ -940,7 +926,7 @@ class GovernmentCapture(models.Model):
 
 
 
- #BUSINESS/SME Captures
+ #BUSINESS/SME Model
 class SMECapture(models.Model):
     # Account Details
     serial_number = models.CharField(max_length=20, unique=True, editable=False)

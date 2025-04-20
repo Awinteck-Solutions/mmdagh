@@ -1,128 +1,331 @@
-
-
-
-
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Business/Educational Institution Capture Details{% endblock %}
+{% block title %}Educational Institution Details{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1 class="mb-2"> {{ request.user.assignment.region.name }}</h1>
-    <h2 class="mb-2"> {{ request.user.assignment.mmda.name }}</h2>
-    <h1 class="mb-2">Educational Institution Details</h1>
-    <h2 class="mb-2">{{ education.school_name }} </h2>
-    <h3 class="mb-2">{{ education.serial_number }}</h3>
-    
-    <!-- Business/SME's  Institution Details Table -->
-    <div>
-
-        <h2 class="mb-4">GENERAL DATA</h2>
-        <div align="left">
-        <p><strong>Serial Number:</strong> {{ education.serial_number }}</p>
-        <p><strong>Category:</strong> {{ education.category }}</p>
-        <p><strong>Educational Inst. Name:</strong> {{ education.school_name }}</p>
-        <p><strong>GES Approved ? :</strong> {{ education.ges_approved}}</p>
-        <p><strong>Type of service:</strong> {{ education.service_type }}</p>
-        <p><strong>Registered:</strong> {{ education.school_registered }}</p>
-        <p><strong>Institutional REG.No:</strong> {{ education.registration_no }}</p>
-        <p><strong>School Role:</strong> {{ education.school_role }}</p>
-        <p><strong>School Type:</strong> {{ education.school_type1 }}</p>
-        <p><strong>Boarding or Day :</strong> {{ education.boarding_facility}}</p>
-        <p><strong>Does the Sch has Bus(es) or Car (s):</strong> {{ education.school_buses_or_cars}}</p>
-        <p><strong>Nature Ownership:</strong> {{ education.nature_ownership }}</p>
-        <p><strong>Institutional Admin:</strong> {{ education.school_admin }}</p>
-        <p><strong>Institutional Admin GH Card:</strong> {{ education.admin_ghana_card }}</p>
-        <p><strong>Admin Contact:</strong> {{ education.school_admin_contact }}</p>
-        <p><strong>Area Zone:</strong> {{ education.area_zone }}</p>
-        <p><strong>Street Name:</strong> {{ education.street_name }}</p>
-        <p><strong>Ghana Post GPS:</strong> <a href="https://www.ghanapostgps.com/map/?q={{ education.gps_address }}" target="_blank" rel="noopener noreferrer">{{ education.gps_address }}</a></p>
-        <p><strong>Google Coordinates:</strong> <a href="https://www.google.com/maps?q={{ education.latitude }},{{education.longitude }}" target="_blank" rel="noopener noreferrer">{{ education.latitude }}, {{ education.longitude }}</a></p>
-        <p><strong>Institution's Location:</strong> {{ education.location }}</p>
-        <p><strong>Emergency contact:</strong> {{ education.emergency_name }},{{ education.emergency_contact }}</p>
-
-
-        <h2 class="mb-4">BUILDING INFORMATION</h2>
-        <div align="left">
-        <p><strong>Building Type:</strong> {{ education.building_type }}</p>
-        <p><strong>No.of Floors :</strong> {{ education.number_of_floors  }}</p>
-        <p><strong>Average No. of Students:</strong> {{ education.average_students }}</p>
-        <p><strong>Toilet Facility :</strong> {{ education.toilet_facility }}</p>
-        <p><strong>Parking Spaces:</strong> {{ education.paeducationrking_spaces }}</p>
-        <p><strong>Fenced :</strong> {{ education.fenced  }}</p>
-        <p><strong>Fencing Type:</strong> {{ education.fencing_type}}</p>
-        <p><strong>Building Condition:</strong> {{ education.building_condition }}</p>
-        <p><strong>Security Features:</strong> {{ education.security_features }}</p>
-        <p><strong>Construction Material:</strong> {{ education.construction_material }}</p>
-        <p><strong>Type of Roof:</strong> {{ education.type_of_roof }}</p>
-        <p><strong>Proximity to Public Infrastructure:</strong> {{ education.proximity_to_public_infrastructure }}</p>
- 
-        <h2 class="mb-4">FACILITY RECORD</h2>
-        <div align="left">
-        <p><strong>Water Supply:</strong> {{ education.water_supply }}</p>
-        <p><strong>Electricity connection :</strong> {{ education.electricity_connection }}</p>
-        <p><strong>ECG Pole No.:</strong> {{ education.ecg_pole_no }}</p>
-
-
-        <p><strong>Has Backup generator:</strong> {{ education.has_backup_generator}}</p>
-        <p><strong>Sewage system:</strong> {{ education.sewage_system }}</p>
-        <p><strong>Waste Disposal Method:</strong> {{ education.waste_disposal_method }}</p>
-        <p><strong>Network connectivity:</strong> {{ education.network_connectivity}}</p>
-        <p><strong>Internet connectivity:</strong> {{ education.internet_connectivity}}</p>
-        <p><strong>Ambulance service Avialablity:</strong> {{ education.ambulance}}</p>
-        <p><strong>Road network:</strong> {{ education.road_network }}</p>
-        <p><strong>Road condition:</strong> {{ education.road_condition }}</p>
-
-
-        <h2 class="mb-4">RISK & CRIMINAL ACTIVITIES AROUND THE AREA</h2>
-        <div align="left">
-        <p><strong>Flood Risk Area:</strong> {{ education.flood_risk_area }}</p>
-        <p><strong>Criminal Activities:</strong> {{ education.criminal_activities_1}},{{ education.criminal_activities_2}},{{ education.criminal_activities_2}}</p>
-
-
-        <h2 class="mb-4">DATES</h2>
-        <div align="left">
-        <p><strong>Date Created:</strong> {{ education.date_created }}</p>
-        <p><strong>Date Updated:</strong> {{ education.date_updated }}</p>
-
-
-
-        <!-- Add more fields as needed -->
+<div class="container-fluid py-4">
+    <!-- Header Section -->
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center border-bottom pb-3">
+                <div>
+                    <h4 class="text-muted mb-1">{{ request.user.assignment.region.name }}</h4>
+                    <h2 class="h3 mb-0">{{ request.user.assignment.mmda.name }}</h2>
+                </div>
+                <div class="text-end">
+                    <h1 class="display-6 text-primary mb-1">{{ education.school_name }}</h1>
+                    <h4 class="text-muted fs-5">{{ education.serial_number }}</h4>
+                </div>
+            </div>
+        </div>
     </div>
 
-        <tr>
-            <th>Profile Picture:</th>
-            <td>
-                {% if account.profile_picture %}
-                    <img src="{{ account.profile_picture.url }}" alt="Profile Picture" style="width:150px; height:150px;">
-                {% else %}
-                    No Picture Uploaded
-                {% endif %}
-            </td>
-        </tr>
+    <!-- Main Content -->
+    <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-lg-8">
+            <!-- General Data Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0"><i class="fas fa-info-circle me-2"></i>General Data</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row mb-3">
+                                <dt class="col-sm-6 text-muted">Category:</dt>
+                                <dd class="col-sm-6">{{ education.category }}</dd>
 
-    <!-- Action Links -->
-    <div class="mt-4">
-        <a href="{% url 'education_list' %}" class="btn btn-secondary">Back to List</a>
-        <a href="{% url 'education_update' education.pk %}" class="btn btn-warning">Edit</a>
-        <a href="{% url 'education_delete' education.pk %}" class="btn btn-danger">Delete</a>
+                                <dt class="col-sm-6 text-muted">GES Approved:</dt>
+                                <dd class="col-sm-6">{{ education.ges_approved }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Service Type:</dt>
+                                <dd class="col-sm-6">{{ education.service_type }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Registered:</dt>
+                                <dd class="col-sm-6">{{ education.school_registered }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Registration No:</dt>
+                                <dd class="col-sm-6">{{ education.registration_no }}</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row mb-3">
+                                <dt class="col-sm-6 text-muted">School Role:</dt>
+                                <dd class="col-sm-6">{{ education.school_role }}</dd>
+
+                                <dt class="col-sm-6 text-muted">School Type:</dt>
+                                <dd class="col-sm-6">{{ education.school_type1 }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Boarding Facility:</dt>
+                                <dd class="col-sm-6">{{ education.boarding_facility }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Transportation:</dt>
+                                <dd class="col-sm-6">{{ education.school_buses_or_cars }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Ownership:</dt>
+                                <dd class="col-sm-6">{{ education.nature_ownership }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Administration Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-info text-white">
+                    <h3 class="card-title mb-0"><i class="fas fa-user-tie me-2"></i>Administration</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-6 text-muted">School Admin:</dt>
+                                <dd class="col-sm-6">{{ education.school_admin }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Ghana Card No:</dt>
+                                <dd class="col-sm-6">{{ education.admin_ghana_card }}</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-6 text-muted">Admin Contact:</dt>
+                                <dd class="col-sm-6">{{ education.school_admin_contact }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Emergency Contact:</dt>
+                                <dd class="col-sm-6">{{ education.emergency_name }}<br>{{ education.emergency_contact }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h3 class="card-title mb-0"><i class="fas fa-map-marked-alt me-2"></i>Location Details</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4 text-muted">GPS Address:</dt>
+                                <dd class="col-sm-8">
+                                    <a href="https://www.ghanapostgps.com/map/?q={{ education.gps_address }}" 
+                                       class="badge bg-primary text-decoration-none" 
+                                       target="_blank">
+                                        {{ education.gps_address }}
+                                    </a>
+                                </dd>
+
+                                <dt class="col-sm-4 text-muted">Coordinates:</dt>
+                                <dd class="col-sm-8">
+                                    <a href="https://www.google.com/maps?q={{ education.latitude }},{{education.longitude }}" 
+                                       class="badge bg-dark text-decoration-none" 
+                                       target="_blank">
+                                        {{ education.latitude }}, {{ education.longitude }}
+                                    </a>
+                                </dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-4 text-muted">Street Name:</dt>
+                                <dd class="col-sm-8">{{ education.street_name }}</dd>
+
+                                <dt class="col-sm-4 text-muted">Area Zone:</dt>
+                                <dd class="col-sm-8">{{ education.area_zone }}</dd>
+
+                                <dt class="col-sm-4 text-muted">Location:</dt>
+                                <dd class="col-sm-8">{{ education.location }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Building Information Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="card-title mb-0"><i class="fas fa-building me-2"></i>Building Information</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-6 text-muted">Building Type:</dt>
+                                <dd class="col-sm-6">{{ education.building_type }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Floors:</dt>
+                                <dd class="col-sm-6">{{ education.number_of_floors }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Student Capacity:</dt>
+                                <dd class="col-sm-6">{{ education.average_students }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Parking Spaces:</dt>
+                                <dd class="col-sm-6">{{ education.parking_spaces }}</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-6 text-muted">Fenced:</dt>
+                                <dd class="col-sm-6">{{ education.fenced }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Fence Type:</dt>
+                                <dd class="col-sm-6">{{ education.fencing_type }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Building Condition:</dt>
+                                <dd class="col-sm-6">{{ education.building_condition }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Roof Type:</dt>
+                                <dd class="col-sm-6">{{ education.type_of_roof }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <p class="mb-1"><strong>Security Features:</strong> {{ education.security_features }}</p>
+                            <p class="mb-1"><strong>Construction Material:</strong> {{ education.construction_material }}</p>
+                            <p class="mb-0"><strong>Public Infrastructure Proximity:</strong> {{ education.proximity_to_public_infrastructure }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Facility Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="card-title mb-0"><i class="fas fa-tools me-2"></i>Facility Record</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-6 text-muted">Water Supply:</dt>
+                                <dd class="col-sm-6">{{ education.water_supply }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Electricity:</dt>
+                                <dd class="col-sm-6">{{ education.electricity_connection }}</dd>
+
+                                <dt class="col-sm-6 text-muted">ECG Pole No:</dt>
+                                <dd class="col-sm-6">{{ education.ecg_pole_no }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Generator:</dt>
+                                <dd class="col-sm-6">{{ education.has_backup_generator }}</dd>
+                            </dl>
+                        </div>
+                        <div class="col-md-6">
+                            <dl class="row">
+                                <dt class="col-sm-6 text-muted">Sewage System:</dt>
+                                <dd class="col-sm-6">{{ education.sewage_system }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Waste Disposal:</dt>
+                                <dd class="col-sm-6">{{ education.waste_disposal_method }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Network:</dt>
+                                <dd class="col-sm-6">{{ education.network_connectivity }}</dd>
+
+                                <dt class="col-sm-6 text-muted">Internet:</dt>
+                                <dd class="col-sm-6">{{ education.internet_connectivity }}</dd>
+                            </dl>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <p class="mb-1"><strong>Toilet Facility:</strong> {{ education.toilet_facility }}</p>
+                            <p class="mb-1"><strong>Ambulance Service:</strong> {{ education.ambulance }}</p>
+                            <p class="mb-1"><strong>Road Network:</strong> {{ education.road_network }}</p>
+                            <p class="mb-0"><strong>Road Condition:</strong> {{ education.road_condition }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk & Security Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <h3 class="card-title mb-0"><i class="fas fa-shield-alt me-2"></i>Risk & Security</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Flood Risk:</strong> {{ education.flood_risk_area }}</p>
+                            <p><strong>Criminal Activities:</strong></p>
+                            <ul class="list-unstyled">
+                                <li>{{ education.criminal_activities_1 }}</li>
+                                <li>{{ education.criminal_activities_2 }}</li>
+                                <li>{{ education.criminal_activities_3 }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dates Card -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                    <h3 class="card-title mb-0"><i class="fas fa-calendar-alt me-2"></i>Audit Dates</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="mb-0"><strong>Date Created:</strong> {{ education.date_created }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="mb-0"><strong>Last Updated:</strong> {{ education.date_updated }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="col-lg-4">
+            <!-- Actions Card -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-purple text-white">
+                    <h3 class="card-title mb-0"><i class="fas fa-tasks me-2"></i>Actions</h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'education_list' %}" class="btn btn-outline-secondary text-start">
+                            <i class="fas fa-arrow-left me-2"></i>Back to List
+                        </a>
+                        <a href="{% url 'education_update' education.pk %}" class="btn btn-warning text-start">
+                            <i class="fas fa-edit me-2"></i>Edit Record
+                        </a>
+                        <a href="{% url 'education_delete' education.pk %}" class="btn btn-danger text-start">
+                            <i class="fas fa-trash-alt me-2"></i>Delete Record
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Picture Card -->
+            {% if education.profile_picture %}
+            <div class="card shadow-sm">
+                <div class="card-header bg-pink text-white">
+                    <h3 class="card-title mb-0"><i class="fas fa-camera me-2"></i>Profile Image</h3>
+                </div>
+                <div class="card-body text-center">
+                    <img src="{{ education.profile_picture.url }}" 
+                         class="img-fluid rounded-3 border" 
+                         alt="Institution Profile"
+                         style="max-width: 100%; height: auto;">
+                    <p class="text-muted mt-2 mb-0">Institution Profile Picture</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
+
+<style>
+    .bg-purple { background-color: #6f42c1; }
+    .bg-pink { background-color: #d63384; }
+    .card-header { border-radius: 0.5rem 0.5rem 0 0 !important; }
+    .card { border: none; border-radius: 0.5rem; }
+    dt { font-weight: 500; }
+</style>
 {% endblock %}
-
-
-
-
-    # Security
-
-
-
-
-
-    # Security
-    criminal_activities = models.JSONField(default=list)  # Replace multiple fields with a single JSONField
-    network_connectivity = models.CharField(max_length=50, choices=NETWORK_CHOICES)
-        # Road Network Section
-    road_network = models.BooleanField(default=False)  # If true, road_condition should be specified
-    road_condition = models.CharField(

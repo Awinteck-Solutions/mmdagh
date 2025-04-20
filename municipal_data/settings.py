@@ -166,7 +166,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'abillasankara@gmail.com'
 EMAIL_HOST_PASSWORD = 'wlak lcew mahq apee '
-
+DEFAULT_FROM_EMAIL = 'abillasankara@gmail.com'
 
 # settings.py
 

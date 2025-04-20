@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us{% endblock %}
+
+{% block content %}
+<style>
+    .contact-section {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        min-height: 100vh;
+        padding: 4rem 0;
+    }
+    
+    .contact-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        padding: 2.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .contact-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .form-control {
+        border-radius: 10px;
+        padding: 1rem;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: #4a90e2;
+        box-shadow: 0 0 0 3px rgba(74,144,226,0.1);
+    }
+
+    .input-icon {
+        position: relative;
+    }
+
+    .input-icon i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+
+    .input-icon input {
+        padding-left: 45px;
+    }
+
+    .submit-btn {
+        background: linear-gradient(135deg, #4a90e2 0%, #2d68c4 100%);
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(74,144,226,0.3);
+    }
+
+    .modal-success .modal-header {
+        background: #4a90e2;
+        color: white;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .success-icon {
+        font-size: 4rem;
+        color: #4a90e2;
+        margin-bottom: 1rem;
+    }
+</style>
+
+<div class="contact-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="contact-card">
+                    <h1 class="text-center mb-5 display-4 fw-bold text-primary">
+                        <i class="fas fa-envelope-open-text me-2"></i>Get in Touch
+                    </h1>
+                    
+                    <form method="POST" class="row g-4">
+                        {% csrf_token %}
+                        <div class="col-md-6 input-icon">
+                            <i class="fas fa-user"></i>
+                            <input type="text" class="form-control" id="message-name" name="message-name" 
+                                   placeholder="Your full name" required>
+                        </div>
+                        
+                        <div class="col-md-6 input-icon">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" class="form-control" id="message-email" name="message-email" 
+                                   placeholder="your.email@example.com" required>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="input-icon">
+                                <i class="fas fa-comment-dots" style="top: 1.8rem"></i>
+                                <textarea class="form-control" id="message" name="message" rows="5" 
+                                          placeholder="Write your message here..." required></textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 text-center mt-4">
+                            <button type="submit" class="btn submit-btn text-white">
+                                <i class="fas fa-paper-plane me-2"></i>Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="successModalLabel">
+                    <i class="fas fa-check-circle me-2"></i>Message Status
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h4 class="mb-3">Message Sent Successfully!</h4>
+                <p class="text-muted" id="modalMessage">We'll get back to you within 24 hours</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.querySelector('form').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        const form = this;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+
+        // Add loading state
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending...';
+        submitBtn.disabled = true;
+
+        try {
+            const response = await fetch('', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: new FormData(form)
+            });
+
+            const result = await response.json();
+            const modal = bootstrap.Modal.getOrCreateInstance('#successModal');
+            const modalBody = document.querySelector('#modalMessage');
+
+            if (result.success) {
+                form.reset();
+                document.querySelector('.success-icon').innerHTML = '<i class="fas fa-check-circle"></i>';
+                document.querySelector('.modal-header').classList.remove('bg-danger');
+                document.querySelector('.modal-header').classList.add('bg-primary');
+                modalBody.innerHTML = result.message || 'Your message has been sent successfully!';
+            } else {
+                document.querySelector('.success-icon').innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+                document.querySelector('.modal-header').classList.remove('bg-primary');
+                document.querySelector('.modal-header').classList.add('bg-danger');
+                modalBody.innerHTML = result.error || 'An error occurred while sending your message.';
+            }
+
+            modal.show();
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Something went wrong. Please try again later.');
+        } finally {
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        }
+    });
+</script>
+
+<!-- Font Awesome -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+{% endblock %}

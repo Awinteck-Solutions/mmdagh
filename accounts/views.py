@@ -6,7 +6,6 @@ from django.db import IntegrityError
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -23,8 +22,9 @@ from datetime import datetime, timedelta
 from django.db.models import Count,F
 from django.db.models.functions import TruncDate  # Use TruncDate inst
 #from .models import Region, DataModel  # Assuming your model names
-
-
+from django.contrib.sessions.models import Session
+from django.views.decorators.cache import cache_page
+from django.core.exceptions import PermissionDenied
 from .forms import (
     DataCaptureForm, EducationForm, ResidentialCaptureForm,
     HealthCaptureForm, GovernmentCaptureForm, SMECaptureForm, SearchForm
@@ -33,9 +33,176 @@ from .models import (
     DataCapture, EducationCapture, ResidentialCapture,
     HealthCapture, GovernmentCapture, SMECapture, UserAssignment, Region, MMDA
 )
-
+from django.utils import timezone
+import json
+from django.core.mail import send_mail
+from django.conf import settings
+from django.db.models import Q
 logger = logging.getLogger(__name__)
 
+
+
+# User Login
+def login_view(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            auth_login(request, user)
+            messages.success(request, 'Login successful!')
+            return redirect('home')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'accounts/login.html', {'form': form})
+
+# User Logout
+@login_required
+def logout_view(request):
+    if request.method == 'POST':
+        auth_logout(request)
+        messages.success(request, 'You have been logged out.')
+        return redirect('login')
+
+#All under the others foldder
+# Home Page
+@login_required
+def home(request):
+    context = {
+        'title': 'Home',
+        'message': 'Welcome to the MMDA Education Portal!',
+    }
+    return render(request, 'home.html', context)
+
+
+# About Page
+def about(request):
+    return render(request, 'others/about.html')
+
+
+# Contact Page
+
+def contact_view(request):
+    if request.method == 'POST':
+        message_name = request.POST.get('message-name')
+        message_email = request.POST.get('message-email')
+        message = request.POST.get('message')
+
+        try:
+            send_mail(
+                subject=f"Message from {message_name}",
+                message=f"From: {message_email}\n\n{message}",
+                from_email=message_email,
+                recipient_list=[settings.DEFAULT_FROM_EMAIL],  # Or your admin email
+                fail_silently=False,
+            )
+            return JsonResponse({'success': True})
+        except Exception as e:
+            print(f"Error: {e}")
+            return JsonResponse({'success': False, 'error': str(e)})
+
+    return render(request, 'others/contact.html')
+
+
+# Contact Success Page
+def contact_success(request):
+    return render(request, 'others/contact_success.html', {'message': 'Your message has been sent successfully!'})
+
+
+# Access Denied Page
+def access_denied(request):
+    return render(request, 'others/access_denied.html', {
+        "message": "You do not have permission to access this resource. Please contact your administrator."
+    })
+
+
+
+@login_required
+def search_view(request):
+    form = SearchForm(request.GET or None)
+    account_results = []
+    education_results = []
+    residential_results = []
+    health_results = []
+    government_results = []
+    sme_results = []
+
+    if form.is_valid():
+        query = form.cleaned_data.get('query', '')
+
+        if query:
+            # DataCapture (Verified from error message)
+            account_results = DataCapture.objects.filter(
+                Q(category__icontains=query) |
+                Q(serial_number__icontains=query) |
+                Q(first_name__icontains=query) |
+                Q(surname__icontains=query) |
+                #Q(ghana_card__icontains=query) |
+                Q(contact_1__icontains=query) |
+                Q(spouse_name__icontains=query) |
+                Q(gender__icontains=query)
+            )
+
+            # EducationCapture (Fix missing | and field names)
+            education_results = EducationCapture.objects.filter(
+                Q(category__icontains=query) |
+                Q(school_admin_contact__icontains=query) |  # Fixed field name
+                Q(school_name__icontains=query) |
+                Q(serial_number__icontains=query) |
+                Q(school_admin__icontains=query) |  # Added missing |
+                Q(gps_address__icontains=query) 
+                #Q(admin_ghana_card__icontains=query)
+            )
+
+            # ResidentialCapture (Fix model name typo)
+            residential_results = ResidentialCapture.objects.filter(  # Corrected spelling
+                Q(category__icontains=query) |
+                Q(serial_number__icontains=query) |
+                Q(principal_tenant__icontains=query) |  # Verify field exists
+                Q(principal_tenant_contact__icontains=query) |
+                Q(building_name__icontains=query) |  # Verify field exists
+                Q(gps_address__icontains=query) 
+                #Q(ghana_card__icontains=query)
+            )
+
+            # HealthCapture (Verify field names)
+            health_results = HealthCapture.objects.filter(
+                Q(category__icontains=query) |
+                Q(serial_number__icontains=query) |
+                Q(hospital_name__icontains=query) |  # Verify existence
+                Q(hospital_admin__icontains=query) |
+                #Q(hospital_admin_ghana_card__icontains=query) |
+                Q(hospital_admin_contact__icontains=query)
+            )
+
+            # GovernmentCapture (Wrong model reference)
+            government_results = GovernmentCapture.objects.filter(  # Changed model
+                Q(category__icontains=query) |
+                Q(serial_number__icontains=query) |
+                Q(institutional_name__icontains=query) |  # Verify existence
+                Q(institutional_contact__icontains=query) |
+                Q(institutional_admin_contact__icontains=query) 
+               # Q(institutional_admin_ghana_card__icontains=query)
+            )
+
+            # SMECapture (Field name correction)
+            sme_results = SMECapture.objects.filter(
+                Q(category__icontains=query) |  # Changed from category_name
+                Q(serial_number__icontains=query) |
+                Q(sme_name__icontains=query) |  # Verify existence
+                Q(sme_admin_contact__icontains=query) 
+                #Q(sme_admin_ghana_card__icontains=query)
+            )
+
+    context = {
+        'form': form,
+        'account_results': account_results,
+        'education_results': education_results,
+        'residential_results': residential_results,
+        'health_results': health_results,
+        'government_results': government_results,
+        'sme_results': sme_results,
+    }
+    return render(request, 'others/search.html', context)
 
 
 def restricted_view(request):
@@ -50,61 +217,10 @@ def restricted_view(request):
 
 
 
-'''class CreateGenericView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    model = None  # Should be overridden in a subclass
-    form_class = DataCaptureForm
-    template_name = "create_account.html"
-    permission_required = "accounts.create_account"
-    success_url = "success_page"  # Ensure this is set in subclasses
-
-    def get_form(self, form_class=None):
-        """Override get_form to pass user to the form for proper filtering."""
-        form_class = form_class or self.get_form_class()
-        return form_class(user=self.request.user)  # Pass user to form
-
-    def form_valid(self, form):
-        """Ensures region and MMDA are assigned correctly before saving."""
-        user = self.request.user
-        capture_instance = form.save(commit=False)
-
-        if not user.is_superuser:
-            try:
-                user_assignment = UserAssignment.objects.get(user=user)
-                capture_instance.region = user_assignment.region
-                capture_instance.mmda = user_assignment.mmda
-            except UserAssignment.DoesNotExist:
-                messages.error(self.request, "You do not have an assigned region or MMDA. Contact admin.")
-                return self.form_invalid(form)
-
-        capture_instance.created_by = user
-        capture_instance.save()
-        messages.success(self.request, "Data successfully captured.")
-        return super().form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        """Pass additional context if needed."""
-        context = super().get_context_data(**kwargs)
-        if hasattr(self, "context_processor") and self.context_processor:
-            context.update(self.context_processor(self.request))
-        return context  '''
-
-
-
-
-
-# Subclass the generic view to create a specific view
-'''class CreateAccountView(CreateGenericView):
-    form_class = DataCaptureForm
-    template_name = 'create_account.html'
-    success_url = 'your_success_url'
-    #context_processor = your_context_processor'''
-
-
-
 # Reusable function for listing accounts
 def list_generic(request, model_class, template_name, context_name, paginate_by=25):
     if request.user.is_superuser:
-        accounts = model_class.objects.all()
+        accounts = model_class.objects.all().select_related('region', 'mmda')
     else:
         try:
             user_assignment = UserAssignment.objects.get(user=request.user)
@@ -288,108 +404,11 @@ def register_view(request):
         form = UserCreationForm()
     return render(request, 'accounts/register.html', {'form': form})
 
-# User Login
-def login_view(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            auth_login(request, user)
-            messages.success(request, 'Login successful!')
-            return redirect('home')
-    else:
-        form = AuthenticationForm()
-    return render(request, 'accounts/login.html', {'form': form})
 
-# User Logout
-@login_required
-def logout_view(request):
-    if request.method == 'POST':
-        auth_logout(request)
-        messages.success(request, 'You have been logged out.')
-        return redirect('login')
-
-
-
-'''def personal_dashboard(request):
-    context = {
-        'user': request.user,
-        # Add other variables here
-    }
-    return render(request, 'accounts/personal_dashboard.html', context)'''
-
-'''def personal_dashboard(request):
-    user = request.user
-    if not user.is_superuser:
-        user_assignment = UserAssignment.objects.filter(user=user).first()
-        if not user_assignment:
-            return HttpResponseForbidden("You do not have an assigned region.")
-        accounts = DataCapture.objects.filter(region=user_assignment.region)
-    else:
-        accounts = DataCapture.objects.all()
-    
-    return render(request,'accounts/personal_dashboard.html', {'accounts': accounts})'''
-
-
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-from django.shortcuts import render
-from .models import DataCapture, UserAssignment
-
-'''from datetime import timedelta
-from django.utils import timezone
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-from django.shortcuts import render
-from .models import DataCapture, UserAssignment
-
-@login_required
-def personal_dashboard(request):
-    user = request.user
-
-    if not user.is_superuser:
-        user_assignment = UserAssignment.objects.filter(user=user).first()
-        if not user_assignment:
-            return HttpResponseForbidden("You do not have an assigned region.")
-        accounts = DataCapture.objects.filter(region=user_assignment.region)
-    else:
-        accounts = DataCapture.objects.all()
-
-    total_entries = accounts.count()
-
-    # Entries in the last 7 days
-    seven_days_ago = timezone.now() - timedelta(days=7)
-    recent_entries_count = accounts.filter(date_created__gte=seven_days_ago).count()
-
-
-    # Unique category count (adjust 'category' field name if needed)
-    category_count = accounts.values('category').distinct().count()
-
-    return render(
-        request,
-        'accounts/personal_dashboard.html',
-        {
-            'accounts': accounts,
-            'total_entries': total_entries,
-            'recent_entries_count': recent_entries_count,
-            'category_count': category_count,
-        }
-    )'''
-
-
-
-from django.contrib.auth.decorators import login_required
-from django.utils import timezone
-from django.http import HttpResponseForbidden
-from django.contrib.sessions.models import Session
-from django.db.models import Count
-import json
-from datetime import timedelta
-
-from .models import DataCapture, UserAssignment  # Adjust imports as necessary
 
 
 @login_required
+@cache_page(60 * 15)  # 15 minute cache
 def personal_dashboard(request):
     user = request.user
 
@@ -445,6 +464,7 @@ def personal_dashboard(request):
 
 
 @login_required
+@cache_page(60 * 15)  # 15 minute cache
 def residential_dashboard(request):
     user = request.user
 
@@ -499,8 +519,7 @@ def residential_dashboard(request):
     )
 
 
-
-
+@cache_page(60 * 15)  # 15 minute cache
 def residential_analytics(request):
     # Total residential properties
     total_residential = ResidentialCapture.objects.count()
@@ -563,14 +582,13 @@ class AccountUpdateView(PermissionRequiredMixin, UpdateView):
 
 
 
-
-
 @login_required
 def education_list(request):
     return list_generic(request, EducationCapture, 'education_list.html', 'educations')
 
 
 @login_required
+@cache_page(60 * 15)  # 15 minute cache
 def educational_dashboard(request):
     user = request.user
 
@@ -626,6 +644,7 @@ def educational_dashboard(request):
 
 
 @login_required
+@cache_page(60 * 15)  # 15 minute cache
 def health_dashboard(request):
     user = request.user
 
@@ -681,8 +700,6 @@ def health_dashboard(request):
 
 
 
-
-
 class EducationUpdateView(PermissionRequiredMixin, UpdateView):
     permission_required = 'app.change_educationcapture'
     model = EducationCapture
@@ -712,10 +729,6 @@ class EducationDeleteView(PermissionRequiredMixin, DeleteView):
 
 def success_view(request):
     return render(request, 'success.html')
-
-
-
-
 
 
 
@@ -800,6 +813,7 @@ def success_view(request):
 #Government accounts RECORDS
 
 @login_required
+@cache_page(60 * 15)  # 15 minute cache
 def government_dashboard(request):
     user = request.user
 
@@ -854,6 +868,7 @@ def government_dashboard(request):
     )
 
 
+#Government views
 @login_required
 def create_government(request):
     return create_generic(request, GovernmentCaptureForm, 'create_government.html', 'government_list')
@@ -897,10 +912,9 @@ def success_view(request):
     return render(request, 'success.html')
 
 
-
-
-#SME accounts RECORDS
+#SME views
 @login_required
+@cache_page(60 * 15)  # 15 minute cache
 def sme_dashboard(request):
     user = request.user
 
@@ -956,8 +970,6 @@ def sme_dashboard(request):
 
 
 
-
-
 @login_required
 def create_sme(request):
     return create_generic(request, SMECaptureForm, 'create_sme.html', 'sme_list')
@@ -982,7 +994,7 @@ def sme_detail(request, pk):
 class SMEDeleteView(PermissionRequiredMixin, DeleteView):
     model = SMECapture  # Replace with the correct model if needed
     template_name = 'accounts/account_confirm_delete.html'
-    success_url = reverse_lazy('smes_list')  # Ensure 'account_list' exists in your URL patterns
+    success_url = reverse_lazy('sme_list')  # Ensure 'account_list' exists in your URL patterns
     permission_required = 'app.delete_smecapture'  # Update with the correct permission
 
     def get_queryset(self):
@@ -1004,8 +1016,6 @@ def account_detail(request, pk):
     return render(request, 'account_detail.html', {'account': account})
 
 
-
-
 class AccountDeleteView(PermissionRequiredMixin, DeleteView):
     model = DataCapture  # Replace with the correct model if needed
     template_name = 'accounts/account_confirm_delete.html'
@@ -1019,91 +1029,11 @@ class AccountDeleteView(PermissionRequiredMixin, DeleteView):
             return DataCapture.objects.filter(region=self.request.user.userassignment.region)
 
 
-
-
-@login_required
-def search_view(request):
-    form = SearchForm(request.GET or None)
-    account_results = []
-    education_results = []
-
-    if form.is_valid():
-        query = form.cleaned_data.get('query', '')
-
-        if query:
-            # Search in DataCapture
-            account_results = DataCapture.objects.filter(
-                first_name__icontains=query
-            ) | DataCapture.objects.filter(
-                surname__icontains=query
-            ) | DataCapture.objects.filter(
-                serial_number__icontains=query
-            )
-
-            # Search in EducationCapture
-            education_results = EducationCapture.objects.filter(
-                first_name__icontains=query
-            ) | EducationCapture.objects.filter(
-                surname__icontains=query
-            ) | EducationCapture.objects.filter(
-                school_name__icontains=query
-            ) | EducationCapture.objects.filter(
-                serial_number__icontains=query
-            )
-
-    context = {
-        'form': form,
-        'account_results': account_results,
-        'education_results': education_results,
-    }
-    return render(request, 'search.html', context)
+from django.db.models import Q
 
 
 
-# Home Page
-@login_required
-def home(request):
-    context = {
-        'title': 'Home',
-        'message': 'Welcome to the MMDA Education Portal!',
-    }
-    return render(request, 'home.html', context)
 
-
-# About Page
-def about(request):
-    return render(request, 'about.html')
-
-
-# Contact Page
-def contact_view(request):
-    if request.method == 'POST':
-        message_name = request.POST.get('message-name')
-        message_email = request.POST.get('message-email')
-        message = request.POST.get('message')
-
-        # Simulate email sending (replace with actual email logic)
-        try:
-            # Replace this with actual send_mail logic
-            print(f"Email sent: {message_name}, {message_email}, {message}")
-            return JsonResponse({'success': True})
-        except Exception as e:
-            print(f"Error: {e}")
-            return JsonResponse({'success': False, 'error': str(e)})
-
-    return render(request, 'contact.html')
-
-
-# Contact Success Page
-def contact_success(request):
-    return render(request, 'contact_success.html', {'message': 'Your message has been sent successfully!'})
-
-
-# Access Denied Page
-def access_denied(request):
-    return render(request, 'accounts/access_denied.html', {
-        "message": "You do not have permission to access this resource. Please contact your administrator."
-    })
 
 
 def fetch_ghana_card(request):
@@ -1125,88 +1055,6 @@ def fetch_ghana_card(request):
         return JsonResponse(data)
     else:
         return JsonResponse({'error': 'Ghana Card not found'}, status=404)
-
-'''from django.shortcuts import render, redirect
-from django.contrib import messages
-from .models import EducationCapture, UserAssignment, DataCapture
-from .forms import EducationForm'''
-
-
-
-'''def create_education(request):
-    """Create an education record linked to the user's assigned region, MMDA, and optionally a Ghana Card."""
-    
-    user = request.user  # Get the logged-in user
-
-    # If the user is a superuser, skip the assignment check
-    if user.is_superuser:
-        # Superusers can bypass the region and MMDA check
-        default_region = None
-        default_mmda = None
-    else:
-        # For non-superusers, fetch the related UserAssignment
-        try:
-            assignment = user.assignment  # Fetch the related UserAssignment
-            default_region = assignment.region
-            default_mmda = assignment.mmda
-        except UserAssignment.DoesNotExist:
-            messages.error(request, "You have not been assigned a region or MMDA. Please update your profile.")
-            return redirect('profile_update')  # Redirect users with no assignment
-
-
-    form = None  # Initialize form variable
-
-    if request.method == 'POST':
-        form = EducationForm(request.POST)
-        if form.is_valid():
-            education_instance = form.save(commit=False)
-            # Assign the user's region and MMDA before saving
-            education_instance.region = default_region
-            education_instance.mmda = default_mmda
-            education_instance.save()
-            messages.success(request, "Education record created successfully.")
-            return redirect('education_success')
-
-        else:
-            print(form.errors)  # Print form errors for debugging
-
-    # Handle pre-filling the form with Ghana Card details
-    ghana_card = request.GET.get('ghana_card', None)
-
-    if ghana_card:
-        data_capture = DataCapture.objects.filter(ghana_card=ghana_card).first()
-        if data_capture:
-            # Initialize form with data from DataCapture model
-            initial_data = {
-                'first_name': data_capture.first_name,
-                'surname': data_capture.surname,
-                'gender': data_capture.gender,
-                'date_of_birth': data_capture.date_of_birth,
-            }
-            form = EducationForm(initial=initial_data)
-        else:
-            form = EducationForm()  # Empty form if no data found
-    else:
-        form = EducationForm()  # Ensure we have a form for GET requests
-
-    return render(request, 'create_education.html', {'form': form})
-
-
-    def save(self, *args, **kwargs):
-        print("Saving EducationCapture instance...")
-        if not self.serial_number:
-            self.serial_number = self.generate_serial_number()
-        super().save(*args, **kwargs)'''
-
-
-    # This line is unreachable because it is after the return statement
-    # if not form.is_valid():
-    #     print(form.errors)  # Print form errors in the console
-
-
-
-
-
 
 
 def enter_ghana_card(request):

@@ -62,13 +62,17 @@
                                 <dd class="col-sm-7">{{ government.service_type }}</dd>
                                 
                                 <dt class="col-sm-5 text-muted">Registration No</dt>
-                                <dd class="col-sm-7">{{ government.Registration_no }}</dd>
+                                <dd class="col-sm-7">{{ government.registration_no }}</dd>
                                 
                                 <dt class="col-sm-5 text-muted">Ownership</dt>
                                 <dd class="col-sm-7">{{ government.nature_ownership }}</dd>
                                 
                                 <dt class="col-sm-5 text-muted">Admin</dt>
                                 <dd class="col-sm-7">{{ government.institutional_admin }}</dd>
+                                <dt class="col-sm-5 text-muted">Admin Contact</dt>
+                                <dd class="col-sm-7">{{ government.institutional_admin_contact }}</dd>
+                                <dt class="col-sm-5 text-muted">Admin Additional Contact</dt>
+                                <dd class="col-sm-7">{{ government.additional_contacts }}</dd>
                             </dl>
                         </div>
                         <div class="col-md-6">
@@ -81,7 +85,29 @@
                                 
                                 <dt class="col-sm-5 text-muted">Location</dt>
                                 <dd class="col-sm-7">{{ government.location }}</dd>
+
+
+                                <dt class="col-sm-5 text-muted">Emergency contact</dt>
+                                <dd class="col-sm-7">{{ government.emergency_name }},{{ government.emergency_contact }}</dd>
+                                <dt class="col-sm-5 text-muted">Location</dt>
+                                <dd class="col-sm-7">{{ government.location }}</dd>
+                                <dt class="col-sm-5 text-muted">Street Name</dt>
+                                <dd class="col-sm-7">{{ government.street_name }}</dd>
+                                <dt class="col-sm-5 text-muted">Area Zone</dt>
+                                <dd class="col-sm-7">{{ government.area_zone }}</dd>
                                 
+                                <dt class="col-sm-5 text-muted">GPS</dt>
+                                <dd class="col-sm-7">
+                                    <a href="https://www.ghanapostgps.com/map/?q={{ government.gps_address }}" 
+                                       target="_blank" 
+                                       class="text-decoration-none">
+                                        {{ government.gps_address }}
+                                    </a>
+                                </dd>
+                                <dt class="col-sm-5 text-muted">Coordinate</dt>
+                                <dd class="col-sm-7">
+                                    <a href="https://www.google.com/maps?q={{ government.latitude }},{{government.longitude }}" target="_blank" rel="noopener noreferrer">{{ government.latitude }}, {{ government.longitude }}
+                                    </a>
                                 <dt class="col-sm-5 text-muted">GPS</dt>
                                 <dd class="col-sm-7">
                                     <a href="https://www.ghanapostgps.com/map/?q={{ government.gps_address }}" 
@@ -105,10 +131,10 @@
                 </div>
                 <div class="card-body">
                     <dl class="row">
-                        <dt class="col-sm-6 text-muted">Type</dt>
+                        <dt class="col-sm-6 text-muted">Building Type</dt>
                         <dd class="col-sm-6">{{ government.building_type }}</dd>
                         
-                        <dt class="col-sm-6 text-muted">Floors</dt>
+                        <dt class="col-sm-6 text-muted">No. of Floors</dt>
                         <dd class="col-sm-6">{{ government.number_of_floors }}</dd>
                         
                         <dt class="col-sm-6 text-muted">Daily Admission</dt>
@@ -116,9 +142,24 @@
                         
                         <dt class="col-sm-6 text-muted">Parking Spaces</dt>
                         <dd class="col-sm-6">{{ government.parking_spaces }}</dd>
-                        
+                        <dt class="col-sm-6 text-muted">Fence?</dt>
+                        <dd class="col-sm-6">{{ government.fenced }}</dd>                     
                         <dt class="col-sm-6 text-muted">Fencing</dt>
                         <dd class="col-sm-6">{{ government.fencing_type }}</dd>
+                        <dt class="col-sm-6 text-muted">Building Condition</dt>
+                        <dd class="col-sm-6">{{ government.building_condition}}</dd>
+                        <dt class="col-sm-6 text-muted">Construction Material</dt>
+                        <dd class="col-sm-6">{{ government.construction_material }}</dd>
+                        <dt class="col-sm-6 text-muted">Fencing</dt>
+                        <dd class="col-sm-6">{{ government.fencing_type }}</dd>
+                        <dt class="col-sm-6 text-muted">Construction Material</dt>
+                        <dd class="col-sm-6">{{ government.construction_material }}</dd>
+                        <dt class="col-sm-6 text-muted">Fencing</dt>
+                        <dd class="col-sm-6">{{ government.fencing_type }}</dd>
+                        <dt class="col-sm-6 text-muted"> Roofing Type</dt>
+                        <dd class="col-sm-6">{{ government.construction_material }}</dd>
+                        <dt class="col-sm-6 text-muted">Proximity to Public Infrastructure</dt>
+                        <dd class="col-sm-6">{{ government.proximity_to_public_infrastructure }}</dd>
                     </dl>
                 </div>
             </div>
@@ -137,13 +178,18 @@
                         
                         <dt class="col-sm-6 text-muted">Electricity</dt>
                         <dd class="col-sm-6">{{ government.electricity_connection }}</dd>
-                        
+                        <dt class="col-sm-6 text-muted">Has Backup generator</dt>
+                        <dd class="col-sm-6">{{ government.has_backup_generator }}</dd>
+                        <dt class="col-sm-6 text-muted">Waste Disposal Method</dt>
+                        <dd class="col-sm-6">{{ government.waste_disposal_method}}</dd>
                         <dt class="col-sm-6 text-muted">Sewage System</dt>
                         <dd class="col-sm-6">{{ government.sewage_system }}</dd>
                         
                         <dt class="col-sm-6 text-muted">Internet</dt>
                         <dd class="col-sm-6">{{ government.internet_connectivity }}</dd>
-                        
+
+                        <dt class="col-sm-6 text-muted">Road Network</dt>
+                        <dd class="col-sm-6">{{ government.road_network }}</dd>                        
                         <dt class="col-sm-6 text-muted">Road Condition</dt>
                         <dd class="col-sm-6">{{ government.road_condition }}</dd>
                     </dl>
