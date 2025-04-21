@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse, reverse_lazy
-from django.views.generic.edit import UpdateView, DeleteView
+from django.views.generic.edit import UpdateView, DeleteView, CreateView
 from django.http import JsonResponse
 from django.db import IntegrityError
 from django.contrib.auth import login as auth_login, logout as auth_logout
@@ -15,13 +15,11 @@ from django.views import View
 from .forms import DataCaptureForm  # Import your form
 from django.http import HttpResponseForbidden
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic import CreateView
-#=from django.db.models import Count, DateFormat, F
+from django.views.generic import CreateView, ListView
 from .models import ResidentialCapture
 from datetime import datetime, timedelta
-from django.db.models import Count,F
-from django.db.models.functions import TruncDate  # Use TruncDate inst
-#from .models import Region, DataModel  # Assuming your model names
+from django.db.models import Count, F
+from django.db.models.functions import TruncDate
 from django.contrib.sessions.models import Session
 from django.views.decorators.cache import cache_page
 from django.core.exceptions import PermissionDenied
@@ -35,11 +33,10 @@ from .models import (
 )
 from django.utils import timezone
 import json
-from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
-logger = logging.getLogger(__name__)
 
+logger = logging.getLogger(__name__)
 
 
 # User Login
@@ -55,6 +52,7 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'accounts/login.html', {'form': form})
 
+
 # User Logout
 @login_required
 def logout_view(request):
@@ -63,7 +61,8 @@ def logout_view(request):
         messages.success(request, 'You have been logged out.')
         return redirect('login')
 
-#All under the others foldder
+
+# All under the others folder
 # Home Page
 @login_required
 def home(request):
@@ -80,7 +79,6 @@ def about(request):
 
 
 # Contact Page
-
 def contact_view(request):
     if request.method == 'POST':
         message_name = request.POST.get('message-name')
@@ -115,106 +113,90 @@ def access_denied(request):
     })
 
 
+from django.db.models import Q
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+
+
+def filter_model_by_fields(model, fields, query):
+    """Reusable helper to filter any model by multiple fields with icontains."""
+    q_objects = Q()
+    for field in fields:
+        q_objects |= Q(**{f"{field}__icontains": query})
+    return model.objects.filter(q_objects)
+
 
 @login_required
 def search_view(request):
     form = SearchForm(request.GET or None)
-    account_results = []
-    education_results = []
-    residential_results = []
-    health_results = []
-    government_results = []
-    sme_results = []
+
+    # Configuration for search parameters
+    SEARCH_CONFIG = [
+        {
+            'model': DataCapture,
+            'fields': ['category', 'serial_number', 'first_name', 'surname',
+                       'contact_1', 'spouse_name', 'gender'],
+            'context_key': 'account_results',
+        },
+        {
+            'model': EducationCapture,
+            'fields': ['category', 'school_admin_contact', 'school_name',
+                       'serial_number', 'school_admin', 'gps_address'],
+            'context_key': 'education_results',
+        },
+        {
+            'model': ResidentialCapture,
+            'fields': ['category', 'serial_number', 'principal_tenant',
+                       'principal_tenant_contact', 'building_name', 'gps_address'],
+            'context_key': 'residential_results',
+        },
+        {
+            'model': HealthCapture,
+            'fields': ['category', 'serial_number', 'hospital_name',
+                       'hospital_admin', 'hospital_admin_contact'],
+            'context_key': 'health_results',
+        },
+        {
+            'model': GovernmentCapture,
+            'fields': ['category', 'serial_number', 'institutional_name',
+                       'institutional_contact', 'institutional_admin_contact'],
+            'context_key': 'government_results',
+        },
+        {
+            'model': SMECapture,
+            'fields': ['category', 'serial_number', 'sme_name',
+                       'sme_admin_contact'],
+            'context_key': 'sme_results',
+        },
+    ]
+
+    # Initialize context with empty querysets
+    context = {'form': form}
+    for config in SEARCH_CONFIG:
+        context[config['context_key']] = config['model'].objects.none()
 
     if form.is_valid():
         query = form.cleaned_data.get('query', '')
-
         if query:
-            # DataCapture (Verified from error message)
-            account_results = DataCapture.objects.filter(
-                Q(category__icontains=query) |
-                Q(serial_number__icontains=query) |
-                Q(first_name__icontains=query) |
-                Q(surname__icontains=query) |
-                #Q(ghana_card__icontains=query) |
-                Q(contact_1__icontains=query) |
-                Q(spouse_name__icontains=query) |
-                Q(gender__icontains=query)
-            )
+            for config in SEARCH_CONFIG:
+                context[config['context_key']] = filter_model_by_fields(
+                    config['model'],
+                    config['fields'],
+                    query
+                )
 
-            # EducationCapture (Fix missing | and field names)
-            education_results = EducationCapture.objects.filter(
-                Q(category__icontains=query) |
-                Q(school_admin_contact__icontains=query) |  # Fixed field name
-                Q(school_name__icontains=query) |
-                Q(serial_number__icontains=query) |
-                Q(school_admin__icontains=query) |  # Added missing |
-                Q(gps_address__icontains=query) 
-                #Q(admin_ghana_card__icontains=query)
-            )
-
-            # ResidentialCapture (Fix model name typo)
-            residential_results = ResidentialCapture.objects.filter(  # Corrected spelling
-                Q(category__icontains=query) |
-                Q(serial_number__icontains=query) |
-                Q(principal_tenant__icontains=query) |  # Verify field exists
-                Q(principal_tenant_contact__icontains=query) |
-                Q(building_name__icontains=query) |  # Verify field exists
-                Q(gps_address__icontains=query) 
-                #Q(ghana_card__icontains=query)
-            )
-
-            # HealthCapture (Verify field names)
-            health_results = HealthCapture.objects.filter(
-                Q(category__icontains=query) |
-                Q(serial_number__icontains=query) |
-                Q(hospital_name__icontains=query) |  # Verify existence
-                Q(hospital_admin__icontains=query) |
-                #Q(hospital_admin_ghana_card__icontains=query) |
-                Q(hospital_admin_contact__icontains=query)
-            )
-
-            # GovernmentCapture (Wrong model reference)
-            government_results = GovernmentCapture.objects.filter(  # Changed model
-                Q(category__icontains=query) |
-                Q(serial_number__icontains=query) |
-                Q(institutional_name__icontains=query) |  # Verify existence
-                Q(institutional_contact__icontains=query) |
-                Q(institutional_admin_contact__icontains=query) 
-               # Q(institutional_admin_ghana_card__icontains=query)
-            )
-
-            # SMECapture (Field name correction)
-            sme_results = SMECapture.objects.filter(
-                Q(category__icontains=query) |  # Changed from category_name
-                Q(serial_number__icontains=query) |
-                Q(sme_name__icontains=query) |  # Verify existence
-                Q(sme_admin_contact__icontains=query) 
-                #Q(sme_admin_ghana_card__icontains=query)
-            )
-
-    context = {
-        'form': form,
-        'account_results': account_results,
-        'education_results': education_results,
-        'residential_results': residential_results,
-        'health_results': health_results,
-        'government_results': government_results,
-        'sme_results': sme_results,
-    }
     return render(request, 'others/search.html', context)
 
 
 def restricted_view(request):
     if not request.user.is_authenticated:
         return HttpResponseForbidden("You must be logged in to access this page.")
-    
+
     user_assignment = UserAssignment.objects.filter(user=request.user).first()
     if not user_assignment or not user_assignment.region:
         return HttpResponseForbidden("You do not have an assigned region.")
-    
-    return render(request, "restricted_template.html", {"region": user_assignment.region})
 
+    return render(request, "restricted_template.html", {"region": user_assignment.region})
 
 
 # Reusable function for listing accounts
@@ -228,19 +210,17 @@ def list_generic(request, model_class, template_name, context_name, paginate_by=
         except UserAssignment.DoesNotExist:
             messages.error(request, "You do not have an assigned region. Please contact your administrator.")
             accounts = []
-    
+
     paginator = Paginator(accounts, paginate_by)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
-    return render(request, template_name, {context_name: page_obj})
 
+    return render(request, template_name, {context_name: page_obj})
 
 
 @login_required
 def create_account(request):
     return create_generic(request, DataCaptureForm, 'create_account.html', 'account_list')
-
 
 
 @login_required
@@ -259,10 +239,9 @@ def account_list(request):
     return render(request, 'account_list.html', {'accounts': accounts})
 
 
-
 def create_generic(request, form_class, template_name, success_url):
     """Handles form creation, ensuring the user's region and MMDA are set properly."""
-    
+
     user = request.user  # Get the logged-in user
 
     # Initialize form variable
@@ -280,7 +259,7 @@ def create_generic(request, form_class, template_name, success_url):
         except UserAssignment.DoesNotExist:
             messages.error(request, "You have not been assigned a region or MMDA. Please update your profile.")
             return redirect('profile_update')  # Redirect users with no assignment
-    
+
     if request.method == 'POST':
         form = form_class(request.POST, user=user)  # Pass user explicitly
         if form.is_valid():
@@ -322,10 +301,9 @@ def create_generic(request, form_class, template_name, success_url):
     return render(request, template_name, {'form': form})
 
 
-
 def create_education(request):
     """Create an education record linked to the user's assigned region, MMDA, and optionally a Ghana Card."""
-    
+
     user = request.user  # Get the logged-in user
 
     # Initialize form variable
@@ -389,6 +367,7 @@ class EducationUpdateView(PermissionRequiredMixin, UpdateView):
     template_name = 'create_education.html'
     success_url = reverse_lazy('education_list')
 
+
 # User Registration
 def register_view(request):
     if request.method == 'POST':
@@ -403,8 +382,6 @@ def register_view(request):
     else:
         form = UserCreationForm()
     return render(request, 'accounts/register.html', {'form': form})
-
-
 
 
 @login_required
@@ -523,11 +500,11 @@ def residential_dashboard(request):
 def residential_analytics(request):
     # Total residential properties
     total_residential = ResidentialCapture.objects.count()
-    
+
     # Registration trends (last 30 days)
     end_date = datetime.now()
     start_date = end_date - timedelta(days=30)
-    
+
     trend_data = (
         ResidentialCapture.objects
         .filter(date_created__gte=start_date)
@@ -536,7 +513,7 @@ def residential_analytics(request):
         .annotate(count=Count('id'))
         .order_by('date')
     )
-    
+
     # Fill in missing dates
     date_dict = {}
     current_date = start_date
@@ -544,13 +521,13 @@ def residential_analytics(request):
         date_str = current_date.strftime('%Y-%m-%d')
         date_dict[date_str] = 0
         current_date += timedelta(days=1)
-    
+
     for entry in trend_data:
         date_dict[entry['date']] = entry['count']
-    
+
     trend_labels = list(date_dict.keys())
     trend_values = list(date_dict.values())
-    
+
     # Property type distribution
     property_distribution = (
         ResidentialCapture.objects
@@ -558,10 +535,10 @@ def residential_analytics(request):
         .annotate(total=Count('id'))
         .order_by('-total')
     )
-    
+
     property_labels = [d['type'] for d in property_distribution]
     property_data = [d['total'] for d in property_distribution]
-    
+
     context = {
         'total_residential': total_residential,
         'trend_labels': trend_labels,
@@ -569,8 +546,9 @@ def residential_analytics(request):
         'property_labels': property_labels,
         'property_data': property_data,
     }
-    
+
     return render(request, 'residential_analytical.html', context)
+
 
 class AccountUpdateView(PermissionRequiredMixin, UpdateView):
     permission_required = 'app.change_accountcapture'
@@ -578,8 +556,6 @@ class AccountUpdateView(PermissionRequiredMixin, UpdateView):
     form_class = DataCaptureForm
     template_name = 'create_account.html'
     success_url = reverse_lazy('account_list')
-
-
 
 
 @login_required
@@ -596,9 +572,9 @@ def educational_dashboard(request):
         user_assignment = UserAssignment.objects.filter(user=user).first()
         if not user_assignment:
             return HttpResponseForbidden("You do not have an assigned region.")
-        educations= EducationCapture.objects.filter(region=user_assignment.region)
+        educations = EducationCapture.objects.filter(region=user_assignment.region)
     else:
-        educations= EducationCapture.objects.all()
+        educations = EducationCapture.objects.all()
 
     total_entries = educations.count()
 
@@ -652,9 +628,9 @@ def health_dashboard(request):
         user_assignment = UserAssignment.objects.filter(user=user).first()
         if not user_assignment:
             return HttpResponseForbidden("You do not have an assigned region.")
-        healths= HealthCapture.objects.filter(region=user_assignment.region)
+        healths = HealthCapture.objects.filter(region=user_assignment.region)
     else:
-        healths= HealthCapture.objects.all()
+        healths = HealthCapture.objects.all()
 
     total_entries = healths.count()
 
@@ -699,7 +675,6 @@ def health_dashboard(request):
     )
 
 
-
 class EducationUpdateView(PermissionRequiredMixin, UpdateView):
     permission_required = 'app.change_educationcapture'
     model = EducationCapture
@@ -731,16 +706,16 @@ def success_view(request):
     return render(request, 'success.html')
 
 
-
-#RESIDENTIAL  accounts RECORDS
+# RESIDENTIAL accounts RECORDS
 @login_required
-def create_residential (request):
+def create_residential(request):
     return create_generic(request, ResidentialCaptureForm, 'create_residential.html', 'residential_list')
 
 
 @login_required
 def residential_list(request):
     return list_generic(request, ResidentialCapture, 'residential_list.html', 'residentials')
+
 
 class ResidentialUpdateView(PermissionRequiredMixin, UpdateView):
     permission_required = 'app.change_residentialcapture'
@@ -769,11 +744,10 @@ class ResidentialDeleteView(PermissionRequiredMixin, DeleteView):
             return ResidentialCapture.objects.filter(region=self.request.user.userassignment.region)
 
 
-
-
 @login_required
 def create_health(request):
     return create_generic(request, HealthCaptureForm, 'create_health.html', 'health_list')
+
 
 @login_required
 def health_list(request):
@@ -793,6 +767,7 @@ def health_detail(request, pk):
     health = get_object_or_404(HealthCapture, pk=pk)
     return render(request, 'health_detail.html', {'health': health})
 
+
 class HealthDeleteView(PermissionRequiredMixin, DeleteView):
     model = HealthCapture  # Replace with the correct model if needed
     template_name = 'accounts/account_confirm_delete.html'
@@ -810,8 +785,7 @@ def success_view(request):
     return render(request, 'success.html')
 
 
-#Government accounts RECORDS
-
+# Government accounts RECORDS
 @login_required
 @cache_page(60 * 15)  # 15 minute cache
 def government_dashboard(request):
@@ -821,9 +795,9 @@ def government_dashboard(request):
         user_assignment = UserAssignment.objects.filter(user=user).first()
         if not user_assignment:
             return HttpResponseForbidden("You do not have an assigned region.")
-        governments= GovernmentCapture.objects.filter(region=user_assignment.region)
+        governments = GovernmentCapture.objects.filter(region=user_assignment.region)
     else:
-        governments= GovernmentCapture.objects.all()
+        governments = GovernmentCapture.objects.all()
 
     total_entries = governments.count()
 
@@ -868,7 +842,7 @@ def government_dashboard(request):
     )
 
 
-#Government views
+# Government views
 @login_required
 def create_government(request):
     return create_generic(request, GovernmentCaptureForm, 'create_government.html', 'government_list')
@@ -879,12 +853,10 @@ def government_list(request):
     return list_generic(request, GovernmentCapture, 'government_list.html', 'governments')
 
 
-
 @login_required
 def government_detail(request, pk):
     government = get_object_or_404(GovernmentCapture, pk=pk)
     return render(request, 'government_detail.html', {'government': government})
-
 
 
 class GovernmentUpdateView(PermissionRequiredMixin, UpdateView):
@@ -912,7 +884,7 @@ def success_view(request):
     return render(request, 'success.html')
 
 
-#SME views
+# SME views
 @login_required
 @cache_page(60 * 15)  # 15 minute cache
 def sme_dashboard(request):
@@ -922,9 +894,9 @@ def sme_dashboard(request):
         user_assignment = UserAssignment.objects.filter(user=user).first()
         if not user_assignment:
             return HttpResponseForbidden("You do not have an assigned region.")
-        smes= SMECapture.objects.filter(region=user_assignment.region)
+        smes = SMECapture.objects.filter(region=user_assignment.region)
     else:
-        smes= SMECapture.objects.all()
+        smes = SMECapture.objects.all()
 
     total_entries = smes.count()
 
@@ -969,14 +941,15 @@ def sme_dashboard(request):
     )
 
 
-
 @login_required
 def create_sme(request):
     return create_generic(request, SMECaptureForm, 'create_sme.html', 'sme_list')
 
+
 @login_required
 def sme_list(request):
     return list_generic(request, SMECapture, 'sme_list.html', 'smes')
+
 
 class SMEUpdateView(PermissionRequiredMixin, UpdateView):
     permission_required = 'app.change_smecapture'
@@ -984,6 +957,7 @@ class SMEUpdateView(PermissionRequiredMixin, UpdateView):
     form_class = SMECaptureForm
     template_name = 'create_sme.html'
     success_url = reverse_lazy('sme_list')
+
 
 @login_required
 def sme_detail(request, pk):
@@ -1008,8 +982,6 @@ def success_view(request):
     return render(request, 'success.html')
 
 
-
-
 @login_required
 def account_detail(request, pk):
     account = get_object_or_404(DataCapture, pk=pk)
@@ -1027,13 +999,6 @@ class AccountDeleteView(PermissionRequiredMixin, DeleteView):
             return DataCapture.objects.all()
         else:
             return DataCapture.objects.filter(region=self.request.user.userassignment.region)
-
-
-from django.db.models import Q
-
-
-
-
 
 
 def fetch_ghana_card(request):
@@ -1061,6 +1026,7 @@ def enter_ghana_card(request):
     """Render the page for entering the Ghana Card number."""
     return render(request, 'enter_ghana_card.html')
 
+
 def success_view(request):
     return render(request, 'success.html')  # Render a success page or template
 
@@ -1068,3 +1034,30 @@ def success_view(request):
 def paynow(request):
     """Render the page for entering the Ghana Card number."""
     return render(request, 'paynow.html')
+
+
+class GenericListView(LoginRequiredMixin, ListView):
+    paginate_by = 25  # Add pagination
+    template_name = None  # Set this dynamically in the URL configuration
+
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return self.model.objects.all()
+        else:
+            user_assignment = UserAssignment.objects.filter(user=self.request.user).first()
+            if not user_assignment:
+                return self.model.objects.none()
+            return self.model.objects.filter(region=user_assignment.region)
+
+
+class BaseCRUDView(PermissionRequiredMixin):
+    template_name = None  # Set dynamically
+    success_url = None  # Set dynamically
+
+    def form_valid(self, form):
+        if not self.request.user.is_superuser:
+            user_assignment = UserAssignment.objects.filter(user=self.request.user).first()
+            if user_assignment:
+                form.instance.region = user_assignment.region
+                form.instance.mmda = user_assignment.mmda
+        return super().form_valid(form)

@@ -1,0 +1,13 @@
+{% block content %}
+<h1>{{ title }}</h1>
+<p>Total Entries: {{ total_entries }}</p>
+<p>Recent Entries (Last 7 Days): {{ recent_entries_count }}</p>
+<p>Unique Categories: {{ category_count }}</p>
+
+<canvas id="trendChart"></canvas>
+<script>
+    const labels = {{ trend_labels|safe }};
+    const data = {{ trend_data|safe }};
+    // Chart.js logic here
+</script>
+{% endblock %}
